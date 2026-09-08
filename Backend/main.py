@@ -8,14 +8,48 @@ import shutil
 import hashlib
 import time
 from pathlib import Path
-from typing import List
+from typing import List, Literal, Optional
 import json
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from Database import db
+from Ai_Engine import (
+    risk_scorer,
+    FinancialExposureEngine,
+    SystemAnomalyDetector,
+    ThreatDetector,
+    CentroidTracker,
+    ThreatActorTracker,
+)
+
+system_anomaly_detector = SystemAnomalyDetector(window_size=30)
+threat_detector = ThreatDetector()
+vision_tracker = CentroidTracker(max_disappeared=25, max_distance=90.0)
+threat_actor_tracker = ThreatActorTracker()
+
 from send2trash import send2trash
 from dotenv import load_dotenv
 from groq import Groq
+import cv2
+from ultralytics import YOLO
+from fastapi.responses import StreamingResponse
 
+yolo_model = YOLO("yolov8n.pt")
+
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 load_dotenv()
-groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+groq_key = os.environ.get("GROQ_API_KEY")
+groq_client = Groq(api_key=groq_key) if groq_key else None
+
+import platform
+
+BACKEND_START_TIME = time.time()
 
 app = FastAPI(title="AURA SENTINEL API")
 
@@ -138,11 +172,9 @@ def get_attack_surface():
 def get_risk_intelligence():
     memory = psutil.virtual_memory()
     disk = psutil.disk_usage("C:\\")
-
-    cpu = psutil.cpu_percent(interval=0.5)
+    cpu = psutil.cpu_percent(interval=0.2)
 
     listening_ports = []
-
     for conn in psutil.net_connections(kind="inet"):
         try:
             if conn.status == psutil.CONN_LISTEN and conn.laddr:
@@ -152,68 +184,47 @@ def get_risk_intelligence():
 
     port_count = len(listening_ports)
 
-    risk_score = 0
+    # Statistical anomaly checks
+    anomalies = system_anomaly_detector.detect_anomalies(cpu, memory.percent, port_count)
 
-    # CPU risk
-    if cpu > 90:
-        risk_score += 25
-    elif cpu > 75:
-        risk_score += 15
-    elif cpu > 60:
-        risk_score += 8
+    # Calculate multi-dimensional risk using AI Risk Engine
+    risk_result = risk_scorer.calculate_technical_risk(
+        cpu_percent=cpu,
+        memory_percent=memory.percent,
+        disk_percent=disk.percent,
+        open_ports_count=port_count,
+        active_anomalies_count=len(anomalies),
+    )
 
-    # Memory risk
-    if memory.percent > 90:
-        risk_score += 25
-    elif memory.percent > 80:
-        risk_score += 15
-    elif memory.percent > 70:
-        risk_score += 8
-
-    # Disk risk
-    if disk.percent > 95:
-        risk_score += 20
-    elif disk.percent > 85:
-        risk_score += 12
-    elif disk.percent > 75:
-        risk_score += 6
-
-    # Attack surface risk
-    if port_count > 15:
-        risk_score += 30
-    elif port_count > 8:
-        risk_score += 20
-    elif port_count > 3:
-        risk_score += 10
-
-    risk_score = min(risk_score, 100)
-
-    if risk_score >= 60:
-        risk_level = "HIGH"
-    elif risk_score >= 30:
-        risk_level = "MODERATE"
-    else:
-        risk_level = "LOW"
+    # Persist metrics snapshot into SQLite database
+    try:
+        db.log_metrics(
+            cpu_percent=cpu,
+            memory_percent=memory.percent,
+            disk_percent=disk.percent,
+            open_ports=port_count,
+            risk_score=risk_result["risk_score"],
+        )
+    except Exception:
+        pass
 
     return {
-        "risk_score": risk_score,
-        "risk_level": risk_level,
-        "cpu_usage": cpu,
-        "memory_usage": memory.percent,
-        "disk_usage": disk.percent,
+        "risk_score": risk_result["risk_score"],
+        "risk_level": risk_result["risk_level"],
+        "cpu_usage": round(cpu, 1),
+        "memory_usage": round(memory.percent, 1),
+        "disk_usage": round(disk.percent, 1),
         "open_ports": port_count,
+        "breakdown": risk_result.get("breakdown", {}),
     }
 
 @app.get("/api/financial-risk")
 def get_financial_risk():
     memory = psutil.virtual_memory()
     disk = psutil.disk_usage("C:\\")
+    cpu = psutil.cpu_percent(interval=0.2)
 
-    cpu = psutil.cpu_percent(interval=0.5)
-
-    # Count listening ports
     listening_ports = []
-
     for conn in psutil.net_connections(kind="inet"):
         try:
             if conn.status == psutil.CONN_LISTEN and conn.laddr:
@@ -223,106 +234,20 @@ def get_financial_risk():
 
     port_count = len(listening_ports)
 
-    # =========================
-    # TECHNICAL RISK CALCULATION
-    # =========================
-
-    risk_score = 0
-
-    if cpu > 90:
-        risk_score += 25
-    elif cpu > 75:
-        risk_score += 15
-    elif cpu > 60:
-        risk_score += 8
-
-    if memory.percent > 90:
-        risk_score += 25
-    elif memory.percent > 80:
-        risk_score += 15
-    elif memory.percent > 70:
-        risk_score += 8
-
-    if disk.percent > 95:
-        risk_score += 20
-    elif disk.percent > 85:
-        risk_score += 12
-    elif disk.percent > 75:
-        risk_score += 6
-
-    if port_count > 15:
-        risk_score += 30
-    elif port_count > 8:
-        risk_score += 20
-    elif port_count > 3:
-        risk_score += 10
-
-    risk_score = min(risk_score, 100)
-
-    # =========================
-    # FINANCIAL RISK MODEL
-    # =========================
-
-    # Estimated business loss per hour
-    base_hourly_loss = 15000
-
-    # Higher technical risk increases financial impact
-    risk_multiplier = 1 + (risk_score / 100)
-
-    estimated_hourly_loss = round(
-        base_hourly_loss * risk_multiplier
+    risk_result = risk_scorer.calculate_technical_risk(
+        cpu_percent=cpu,
+        memory_percent=memory.percent,
+        disk_percent=disk.percent,
+        open_ports_count=port_count,
     )
 
-    # Estimated possible downtime
-    if risk_score >= 60:
-        downtime_hours = 8
-    elif risk_score >= 30:
-        downtime_hours = 4
-    else:
-        downtime_hours = 1
-
-    potential_incident_cost = (
-        estimated_hourly_loss * downtime_hours
+    return FinancialExposureEngine.calculate_exposure(
+        risk_score=risk_result["risk_score"],
+        cpu_usage=cpu,
+        memory_usage=memory.percent,
+        disk_usage=disk.percent,
+        open_ports=port_count,
     )
-
-    # Data recovery / response estimate
-    recovery_cost = round(
-        potential_incident_cost * 0.35
-    )
-
-    total_financial_exposure = (
-        potential_incident_cost + recovery_cost
-    )
-
-    # =========================
-    # FINANCIAL RISK LEVEL
-    # =========================
-
-    if total_financial_exposure >= 250000:
-        financial_level = "CRITICAL"
-    elif total_financial_exposure >= 100000:
-        financial_level = "HIGH"
-    elif total_financial_exposure >= 50000:
-        financial_level = "MODERATE"
-    else:
-        financial_level = "LOW"
-
-    return {
-        "financial_risk_level": financial_level,
-        "technical_risk_score": risk_score,
-
-        "estimated_hourly_loss": estimated_hourly_loss,
-        "estimated_downtime_hours": downtime_hours,
-
-        "potential_incident_cost": potential_incident_cost,
-        "recovery_cost": recovery_cost,
-        "total_financial_exposure": total_financial_exposure,
-
-        "cpu_usage": round(cpu, 2),
-        "memory_usage": memory.percent,
-        "disk_usage": disk.percent,
-        "open_ports": port_count,
-    }
 
 
 
@@ -702,6 +627,25 @@ def quarantine_files(request: FileActionRequest):
                 "quarantined_at": time.time(),
             }
 
+            # Persist to SQLite quarantine records & audit events
+            try:
+                stat = destination.stat()
+                db.record_quarantine(
+                    quarantine_name=quarantine_name,
+                    original_path=str(source),
+                    file_size=stat.st_size,
+                    category="FILE_DEFENSE",
+                )
+                db.log_event(
+                    event_type="SHIELD",
+                    severity="WARNING",
+                    title=f"File Quarantined: {source.name}",
+                    description=f"Isolated from {source} into secure quarantine vault.",
+                    source="FILE_SECURITY",
+                )
+            except Exception:
+                pass
+
             results.append({"path": path, "status": "QUARANTINED", "new_location": str(destination)})
         except (OSError, PermissionError) as error:
             results.append({"path": path, "status": "FAILED", "reason": str(error)})
@@ -928,7 +872,7 @@ def aura_chat(request: AuraChatRequest):
 
     raw = ""
     try:
-        completion = groq_client.chat.completions.create(
+        completion = groq_client.chat.completions.create( #type:ignore
             model="openai/gpt-oss-20b",
             messages=messages, #type: ignore
             temperature=0.6,
@@ -1025,3 +969,421 @@ def delete_file_broad(request: FileActionRequest):
         except Exception as error:
             results.append({"path": path, "status": "FAILED", "reason": str(error)})
     return {"results": results}
+
+def generate_vision_frames():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Camera device not accessible")
+        return
+    
+    try:
+        while True:
+            success, frame = cap.read()
+            if not success:
+                break
+
+            results = yolo_model(frame, verbose=False, classes=[0]) #type: ignore
+            rects = []
+
+            for result in results:
+                for box in result.boxes: #type:ignore
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    rects.append((x1, y1, x2, y2))
+
+            # Centroid tracker update (AI Tracking Engine)
+            tracked_entities = vision_tracker.update(rects)
+
+            for entity in tracked_entities:
+                x1, y1, x2, y2 = entity["bbox"]
+                obj_id = entity["id"]
+                dwell = entity["dwell_time"]
+
+                # Draw bounding box & ID label
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 200, 255), 2)
+                label = f"Target #{obj_id} [{dwell:.0f}s]"
+                cv2.putText(frame, label, (x1, y1 - 8),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 200, 255), 2)
+
+            cv2.putText(frame, f"AURA VISION | TARGETS TRACKED: {len(tracked_entities)}", (15, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
+
+            ok, buffer = cv2.imencode(".jpg", frame)
+            if not ok:
+                continue
+
+            frame_bytes = buffer.tobytes()
+            yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n")
+    finally:
+        cap.release()
+
+
+@app.get("/api/vision/stream")
+def vision_stream():
+    return StreamingResponse(
+        generate_vision_frames(),
+        media_type="multipart/x-mixed-replace; boundary=frame",
+    )
+
+# =========================================
+# SOC ACTIVE DEFENSE & AUTOMATION
+# =========================================
+
+class ProcessKillRequest(BaseModel):
+    pid: int
+
+@app.post("/api/processes/kill")
+def kill_process(request: ProcessKillRequest):
+    pid = request.pid
+    current_pid = os.getpid()
+
+    if pid <= 4 or pid == current_pid:
+        return {"status": "REJECTED", "reason": "Cannot terminate protected kernel or system server process."}
+
+    try:
+        proc = psutil.Process(pid)
+        proc_name = proc.name()
+        proc.terminate()
+        try:
+            proc.wait(timeout=1.5)
+        except psutil.TimeoutExpired:
+            proc.kill()
+
+        # Audit mitigation to persistent SQLite database
+        try:
+            db.record_mitigation(
+                action_type="KILL_PROCESS",
+                target=f"PID {pid} ({proc_name})",
+                details="Operator manual termination via SOC dashboard.",
+                operator="OPERATOR_LEVEL_1",
+                status="TERMINATED"
+            )
+            db.log_event(
+                event_type="PROCESS",
+                severity="WARNING",
+                title=f"Host Process Terminated: {proc_name}",
+                description=f"PID {pid} ({proc_name}) terminated by operator action.",
+                source="PROCESS_WATCHDOG",
+            )
+        except Exception:
+            pass
+
+        return {"status": "TERMINATED", "pid": pid, "name": proc_name}
+    except psutil.NoSuchProcess:
+        return {"status": "NOT_FOUND", "reason": "Process does not exist or has already exited."}
+    except psutil.AccessDenied:
+        return {"status": "ACCESS_DENIED", "reason": "Administrative permissions required to terminate this process."}
+    except Exception as e:
+        return {"status": "FAILED", "reason": str(e)}
+
+@app.get("/api/soc/alerts")
+def get_soc_alerts():
+    alerts = []
+    now = time.time()
+
+    # System telemetry checks
+    try:
+        cpu = psutil.cpu_percent(interval=0.1)
+        mem = psutil.virtual_memory()
+
+        # Check listening ports
+        listening_conns = []
+        for c in psutil.net_connections(kind="inet"):
+            if c.status == psutil.CONN_LISTEN and c.laddr:
+                listening_conns.append({
+                    "port": c.laddr.port,
+                    "host": c.laddr.ip,
+                    "process": "System" if not c.pid else "Active Daemon",
+                    "pid": c.pid,
+                })
+
+        # 1. AI Threat Detection Engine: High-risk vulnerable ports
+        vulnerable_ports = threat_detector.inspect_listening_ports(listening_conns)
+        for vp in vulnerable_ports:
+            alerts.append({
+                "id": f"port-vuln-{vp['port']}-{int(now)}",
+                "severity": vp["risk"],
+                "title": f"High-Risk Service Port Exposed (Port {vp['port']} - {vp['service']})",
+                "source": "THREAT_DETECTOR",
+                "timestamp": now,
+                "action": vp["remediation"],
+            })
+
+        # 2. AI Anomaly Engine: Statistical Z-score & trend anomalies
+        anomalies = system_anomaly_detector.detect_anomalies(cpu, mem.percent, len(listening_conns))
+        for anom in anomalies:
+            alerts.append({
+                "id": anom["id"],
+                "severity": anom["severity"],
+                "title": anom["title"],
+                "source": "AI_ANOMALY_ENGINE",
+                "timestamp": now,
+                "action": anom["action"],
+            })
+
+        # Standard threshold alerts
+        if cpu > 75 and not any(a["source"] == "AI_ANOMALY_ENGINE" and "Compute" in a["title"] for a in alerts):
+            alerts.append({
+                "id": f"cpu-{int(now)}",
+                "severity": "CRITICAL" if cpu > 90 else "WARNING",
+                "title": f"Elevated Processor Load ({cpu}%)",
+                "source": "KERNEL_TELEMETRY",
+                "timestamp": now,
+                "action": "Inspect high compute background processes.",
+            })
+
+        if mem.percent > 80 and not any(a["source"] == "AI_ANOMALY_ENGINE" and "Memory" in a["title"] for a in alerts):
+            alerts.append({
+                "id": f"mem-{int(now)}",
+                "severity": "CRITICAL" if mem.percent > 90 else "WARNING",
+                "title": f"High Memory Saturation ({mem.percent}%)",
+                "source": "MEMORY_AUDIT",
+                "timestamp": now,
+                "action": "Examine memory-intensive applications.",
+            })
+
+        # Log alerts with severity WARNING or CRITICAL to SQLite
+        for a in alerts:
+            if a["severity"] in ["WARNING", "HIGH", "CRITICAL"]:
+                try:
+                    db.log_event(
+                        event_type="IDS",
+                        severity=a["severity"],
+                        title=a["title"],
+                        description=a["action"],
+                        source=a["source"],
+                    )
+                except Exception:
+                    pass
+
+        # Nominal system status fallback
+        if not alerts:
+            alerts.append({
+                "id": f"nominal-{int(now)}",
+                "severity": "NOMINAL",
+                "title": "All Subsystems Nominal — No Active Threats",
+                "source": "AURA_SENTINEL",
+                "timestamp": now,
+                "action": "Continuous background monitoring engaged.",
+            })
+
+    except Exception as e:
+        alerts.append({
+            "id": f"err-{int(now)}",
+            "severity": "INFO",
+            "title": f"Telemetry check exception: {str(e)}",
+            "source": "DIAGNOSTICS",
+            "timestamp": now,
+            "action": "Verify psutil permissions.",
+        })
+
+    return {"total_alerts": len(alerts), "alerts": alerts}
+
+class AttackSimRequest(BaseModel):
+    scenario: str = "brute_force"  # brute_force | ddos | port_scan | clear
+
+@app.post("/api/soc/simulate-attack")
+def simulate_attack(request: AttackSimRequest):
+    scenario = request.scenario.lower()
+
+    if scenario == "clear":
+        try:
+            db.log_event(
+                event_type="SHIELD",
+                severity="NOMINAL",
+                title="Wargame Simulation Cleared",
+                description="Perimeter normalized; all simulated threat vectors mitigated.",
+                source="WARGAME_ENGINE"
+            )
+        except Exception:
+            pass
+
+        return {
+            "simulation_active": False,
+            "scenario": "NORMAL",
+            "risk_score": 18,
+            "threat_level": "LOW",
+            "active_threats": [],
+            "remediation_status": "System normalized. Countermeasures successfully applied.",
+        }
+
+    # Evaluate threat using AI Threat Detection Engine
+    selected = threat_detector.evaluate_attack_scenario(scenario)
+
+    # Persist simulation incident to SQLite database
+    try:
+        actor_ip = selected.get("simulated_actor_ip", "Unknown")
+        db.log_event(
+            event_type="ATTACK_SIM",
+            severity=selected.get("threat_level", "HIGH"),
+            title=f"Attack Simulation: {selected['threat_name']}",
+            description=selected.get("mitigation_playbook", ""),
+            source="WARGAME_ENGINE",
+            ip_address=actor_ip,
+            metadata={
+                "targeted_ports": selected.get("targeted_ports", []),
+                "financial_spike": selected.get("financial_loss_spike", 0),
+                "mitre": selected.get("mitre_technique", ""),
+            }
+        )
+
+        # Update threat actor tracking profile in SQLite
+        db.upsert_threat_actor(
+            ip_address=actor_ip,
+            threat_score=selected.get("risk_score", 80),
+            status="ATTACKING",
+            notes=selected.get("threat_name", "")
+        )
+    except Exception:
+        pass
+
+    return {
+        "simulation_active": True,
+        "scenario": scenario.upper(),
+        **selected,
+        "timestamp": time.time(),
+    }
+
+# =========================================
+# DATABASE & HISTORICAL TELEMETRY APIS
+# =========================================
+
+@app.get("/api/database/events")
+def get_database_events(limit: int = 50, severity: str = "ALL", event_type: str = "ALL"):
+    events = db.get_recent_events(limit=limit, severity=severity, event_type=event_type)
+    return {
+        "total": len(events),
+        "events": events,
+    }
+
+@app.get("/api/database/stats")
+def get_database_stats():
+    return db.get_database_stats()
+
+@app.get("/api/database/metrics-history")
+def get_database_metrics_history(limit: int = 60):
+    return {
+        "history": db.get_metrics_history(limit=limit),
+    }
+
+@app.get("/api/database/threat-actors")
+def get_database_threat_actors(limit: int = 20):
+    return {
+        "threat_actors": db.get_threat_actors(limit=limit),
+    }
+
+@app.get("/api/analytics/metrics")
+def get_analytics_metrics():
+    now = time.time()
+    boot_time = psutil.boot_time()
+    system_uptime = round(now - boot_time)
+    backend_uptime = round(now - BACKEND_START_TIME)
+
+    return {
+        "backend_uptime_seconds": backend_uptime,
+        "system_uptime_seconds": system_uptime,
+        "system_uptime_formatted": f"{system_uptime // 3600}h {(system_uptime % 3600) // 60}m {system_uptime % 60}s",
+        "cpu_count_logical": psutil.cpu_count(logical=True),
+        "cpu_count_physical": psutil.cpu_count(logical=False),
+        "platform": {
+            "os": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
+        },
+        "active_sockets_count": len(psutil.net_connections(kind="inet")),
+    }
+
+# =========================================
+# OPERATOR AUTHENTICATION & USER MANAGEMENT
+# =========================================
+
+class UserRegisterRequest(BaseModel):
+    username: str
+    full_name: str
+    password: str
+    role: str = "Level 1 - SOC Operator"
+    face_descriptor: Optional[List[float]] = None
+
+class UserLoginRequest(BaseModel):
+    username: str
+    password: str
+
+class SaveBiometricsRequest(BaseModel):
+    username: str
+    descriptor: List[float]
+
+@app.post("/api/auth/register")
+def register_operator(request: UserRegisterRequest):
+    username = request.username.strip().lower()
+    if not username or len(username) < 3:
+        return {"status": "ERROR", "message": "Username must be at least 3 characters."}
+    if not request.password or len(request.password) < 4:
+        return {"status": "ERROR", "message": "Password must be at least 4 characters."}
+
+    # Check existing
+    existing = db.get_user_by_username(username)
+    if existing:
+        return {"status": "ERROR", "message": f"Operator username '{username}' is already registered."}
+
+    try:
+        new_user = db.create_user(
+            username=username,
+            full_name=request.full_name or username,
+            password=request.password,
+            role=request.role or "Level 1 - SOC Operator",
+            face_descriptor=request.face_descriptor,
+        )
+        return {
+            "status": "SUCCESS",
+            "message": f"Operator '{username}' registered with clearance {new_user['role']}.",
+            "user": new_user,
+        }
+    except Exception as e:
+        return {"status": "ERROR", "message": str(e)}
+
+@app.post("/api/auth/login")
+def login_operator(request: UserLoginRequest):
+    user = db.verify_user(request.username, request.password)
+    if not user:
+        # Audit failed login
+        try:
+            db.log_event(
+                event_type="AUTH",
+                severity="WARNING",
+                title=f"Failed Login Attempt: {request.username}",
+                description="Invalid credentials submitted.",
+                source="OPERATOR_AUTH"
+            )
+        except Exception:
+            pass
+        return {"status": "ERROR", "message": "Invalid username or security password."}
+
+    return {
+        "status": "SUCCESS",
+        "message": f"Welcome back, Operator {user['full_name']}.",
+        "user": user,
+    }
+
+@app.get("/api/auth/users")
+def list_registered_operators():
+    return {
+        "total": len(db.list_users()),
+        "operators": db.list_users(),
+    }
+
+@app.post("/api/auth/save-biometrics")
+def save_operator_biometrics(request: SaveBiometricsRequest):
+    success = db.save_user_face_descriptor(request.username, request.descriptor)
+    if not success:
+        return {"status": "ERROR", "message": "Operator not found or biometric update failed."}
+    return {
+        "status": "SUCCESS",
+        "message": f"Biometric signature saved to database for {request.username}.",
+    }
+
+@app.get("/api/auth/biometrics/descriptors")
+def get_biometrics_descriptors():
+    return {
+        "operators": db.get_users_with_biometrics(),
+    }
+

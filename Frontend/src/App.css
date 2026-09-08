@@ -1,4 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "./styles/soc-custom.css";
+@import "./styles/jarvis-core.css";
+@import "./styles/hero-boot-futuristic.css";
 
 * {
   box-sizing: border-box;
@@ -25,9 +28,10 @@ button {
 
 .landing-page {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 50% 45%, rgba(0, 104, 255, 0.16), transparent 24%),
     radial-gradient(circle at 20% 20%, rgba(0, 50, 130, 0.12), transparent 35%),
@@ -6013,4 +6017,52 @@ a:focus-visible {
 .face-auth-reset:hover {
   border-color: #ffffff;
   background: rgba(0, 80, 200, 0.4);
+}
+
+/* =========================================
+   VISION INTELLIGENCE
+========================================= */
+
+.vision-dashboard {
+  width: min(1100px, 90%);
+  margin: 0 auto;
+  padding: 80px 0 100px;
+}
+
+.vision-title-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.vision-title-section h1 {
+  margin: 15px 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(35px, 5vw, 60px);
+}
+
+.vision-description {
+  max-width: 560px;
+  color: #7083a3;
+  line-height: 1.7;
+}
+
+.vision-feed-wrapper {
+  border: 1px solid rgba(90, 170, 255, 0.18);
+  background: rgba(5, 15, 35, 0.7);
+  padding: 20px;
+  border-radius: var(--aura-radius, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.vision-feed {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 8px;
+  display: block;
 }

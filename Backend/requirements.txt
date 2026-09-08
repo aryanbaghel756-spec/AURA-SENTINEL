@@ -1,3 +1,8 @@
 fastapi
 uvicorn[standard]
 psutil
+groq
+ultralytics
+opencv-python
+send2trash
+python-dotenv

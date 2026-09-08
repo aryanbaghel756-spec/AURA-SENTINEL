@@ -1,0 +1,403 @@
+/* =========================================================
+   AURA JARVIS CORE & HOLOGRAPHIC DESIGN SYSTEM
+   ========================================================= */
+
+/* --- AURA Arc Reactor Core --- */
+.aura-arc-reactor {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 50%;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.aura-arc-reactor:hover {
+  transform: scale(1.03);
+}
+
+/* Outer Bracket Ring */
+.reactor-bracket-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px dashed rgba(80, 180, 255, 0.25);
+  animation: reactorRotateCW 35s linear infinite;
+}
+
+/* Rotating Segmented Outer Ring */
+.reactor-segmented-ring.ring-cw {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: var(--core-color, #00f0ff);
+  border-bottom-color: var(--core-color, #00f0ff);
+  box-shadow: 0 0 18px var(--core-color, #00f0ff);
+  animation: reactorRotateCW 12s linear infinite;
+}
+
+/* Rotating Inner Ring (Reverse) */
+.reactor-segmented-ring.ring-ccw {
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-left-color: rgba(255, 255, 255, 0.7);
+  border-right-color: rgba(255, 255, 255, 0.7);
+  animation: reactorRotateCCW 8s linear infinite;
+}
+
+/* Central Iris Glass */
+.reactor-core-center {
+  position: relative;
+  width: 52%;
+  height: 52%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(3, 15, 38, 0.95), #02050e 85%);
+  border: 1.5px solid var(--core-color, #00f0ff);
+  box-shadow:
+    inset 0 0 25px var(--core-color, #00f0ff),
+    0 0 35px var(--core-color, #00f0ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: all 0.4s ease;
+}
+
+.core-iris {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.core-aura-glyph {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 0 12px var(--core-color, #00f0ff);
+}
+
+.core-mic-glyph,
+.core-wave-glyph,
+.core-alert-glyph {
+  font-size: 20px;
+  color: #ffffff;
+  text-shadow: 0 0 15px var(--core-color, #00f0ff);
+}
+
+/* Pulsing Echo Waves */
+.reactor-wave-echo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--core-color, #00f0ff);
+  pointer-events: none;
+}
+
+.reactor-wave-echo.echo-1 {
+  animation: waveEcho 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.reactor-wave-echo.echo-2 {
+  animation: waveEcho 2s infinite 0.7s cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+@keyframes waveEcho {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+@keyframes reactorRotateCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reactorRotateCCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* State Modifiers */
+.aura-arc-reactor.thinking .reactor-segmented-ring.ring-cw {
+  animation-duration: 3s;
+}
+
+.aura-arc-reactor.thinking .reactor-segmented-ring.ring-ccw {
+  animation-duration: 2s;
+}
+
+.aura-arc-reactor.processing .reactor-core-center {
+  animation: processingPulse 0.8s infinite alternate ease-in-out;
+}
+
+.aura-arc-reactor.attack .reactor-core-center {
+  animation: attackAlarmPulse 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes processingPulse {
+  from { box-shadow: inset 0 0 20px #ffaa00, 0 0 25px #ffaa00; }
+  to { box-shadow: inset 0 0 45px #ffaa00, 0 0 60px #ffaa00; }
+}
+
+@keyframes attackAlarmPulse {
+  from { box-shadow: inset 0 0 20px #ff2a55, 0 0 30px #ff2a55; }
+  to { box-shadow: inset 0 0 50px #ff2a55, 0 0 75px #ff2a55; }
+}
+
+/* Core Status Pill */
+.core-status-pill {
+  position: absolute;
+  bottom: -28px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  background: rgba(3, 10, 24, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(10px);
+}
+
+.core-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--core-color, #00f0ff);
+  box-shadow: 0 0 8px var(--core-color, #00f0ff);
+}
+
+.core-state-text {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* --- Command Palette (Ctrl+K) --- */
+.cmd-palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(2, 4, 10, 0.85);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14vh;
+  animation: cmdFadeIn 0.2s ease-out;
+}
+
+@keyframes cmdFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cmd-palette-modal {
+  width: min(640px, 92vw);
+  background: linear-gradient(135deg, rgba(8, 16, 36, 0.98), rgba(4, 8, 20, 0.98));
+  border: 1px solid var(--aura-cyan);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.25);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.cmd-palette-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 12px;
+}
+
+.cmd-search-icon {
+  font-size: 16px;
+  color: var(--aura-cyan);
+}
+
+.cmd-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.cmd-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.cmd-shortcut-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.cmd-palette-results {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cmd-palette-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.cmd-palette-item:hover,
+.cmd-palette-item.selected {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.35);
+  color: #ffffff;
+}
+
+.cmd-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cmd-item-icon {
+  color: var(--aura-cyan);
+  font-size: 14px;
+}
+
+.cmd-item-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.cmd-palette-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --- Floating Cyber HUD Toasts --- */
+.hud-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.hud-toast-item {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 440px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(5, 12, 26, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-active);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.hud-toast-item.success { border-color: var(--threat-nominal); box-shadow: 0 0 20px rgba(0, 230, 118, 0.25); }
+.hud-toast-item.warning { border-color: var(--threat-moderate); box-shadow: 0 0 20px rgba(255, 196, 0, 0.25); }
+.hud-toast-item.error { border-color: var(--threat-critical); box-shadow: 0 0 20px rgba(255, 42, 85, 0.25); }
+.hud-toast-item.security { border-color: var(--aura-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); }
+
+.toast-icon {
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  margin: 0 0 3px;
+}
+
+.toast-message {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.toast-close:hover {
+  color: #ffffff;
+}
+
+/* --- Holographic Card Brackets --- */
+.holographic-panel {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.holographic-panel::before,
+.holographic-panel::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--aura-cyan);
+  pointer-events: none;
+}
+
+.holographic-panel::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.holographic-panel::after { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
