@@ -1387,3 +1387,8 @@ def get_biometrics_descriptors():
         "operators": db.get_users_with_biometrics(),
     }
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+
