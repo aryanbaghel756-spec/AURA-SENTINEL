@@ -52,10 +52,14 @@ ping 127.0.0.1 -n 4 >nul
 echo [*] Launching AURA Command Center in your browser...
 start http://localhost:5173
 
+for /f %%i in ('python -c "import socket; s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.connect(('8.8.8.8', 80)); print(s.getsockname()[0]); s.close()" 2^>nul') do set LAN_IP=%%i
+if "%LAN_IP%"=="" set LAN_IP=192.168.x.x
+
 echo.
 echo ==============================================================================
 echo   AURA SENTINEL MVP IS LIVE! (10 ENGINES ONLINE)
-echo   - Web SOC Dashboard : http://localhost:5173
+echo   - Local Dashboard   : http://localhost:5173
+echo   - Phone / Network   : http://%LAN_IP%:5173  ^<-- Open on Phone (Same Wi-Fi)
 echo   - Backend REST API  : http://127.0.0.1:8000
 echo   - Swagger API Docs  : http://127.0.0.1:8000/docs
 echo ==============================================================================
