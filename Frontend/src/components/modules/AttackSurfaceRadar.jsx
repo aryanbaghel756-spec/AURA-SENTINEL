@@ -6,19 +6,21 @@ const CATEGORY_COLORS = {
   "DATABASE": { stroke: "#a855f7", fill: "rgba(168, 85, 247, 0.2)", text: "#c084fc" },
   "CORE / INFRA": { stroke: "#10b981", fill: "rgba(16, 185, 129, 0.2)", text: "#34d399" },
   "USER / RPC": { stroke: "#f59e0b", fill: "rgba(245, 158, 11, 0.2)", text: "#fbbf24" },
-  "HIGH RISK": { stroke: "#ef4444", fill: "rgba(239, 68, 68, 0.25)", text: "#f87171" },
+  "HIGH RISK": { stroke: "#ef4444", fill: "rgba(239, 68, 68, 0.3)", text: "#f87171" },
+  "CRITICAL": { stroke: "#ff0055", fill: "rgba(255, 0, 85, 0.4)", text: "#ff3366" },
+  "NOISE": { stroke: "#64748b", fill: "rgba(100, 116, 139, 0.15)", text: "#94a3b8" },
 };
 
 function getPortCategory(port) {
   if ([80, 443, 3000, 5000, 5173, 8000, 8080].includes(port)) return "WEB / HTTP";
-  if ([3306, 5432, 27017, 6379].includes(port)) return "DATABASE";
-  if ([21, 22, 23, 25, 53, 110, 135, 139, 445].includes(port)) {
-    return [23, 445, 135, 139].includes(port) ? "HIGH RISK" : "CORE / INFRA";
+  if ([3306, 5432, 27017, 6379, 1433, 1521].includes(port)) return "DATABASE";
+  if ([21, 22, 23, 25, 53, 110, 135, 139, 445, 3389, 5900].includes(port)) {
+    return [23, 445, 135, 139, 3389, 6379].includes(port) ? "HIGH RISK" : "CORE / INFRA";
   }
   return "USER / RPC";
 }
 
-export default function AttackSurfaceRadar({ ports = [], selectedPort, onSelectPort }) {
+export default function AttackSurfaceRadar({ ports = [], selectedPort, onSelectPort, suppressedPorts = [] }) {
   const canvasRef = useRef(null);
   const animFrameRef = useRef(null);
   const angleRef = useRef(0);
@@ -30,7 +32,12 @@ export default function AttackSurfaceRadar({ ports = [], selectedPort, onSelectP
   const nodes = ports.map((p, idx) => {
     const total = Math.max(ports.length, 1);
     const angle = (idx / total) * (Math.PI * 2) - Math.PI / 2;
-    const cat = getPortCategory(p.port);
+    const isSuppressed = suppressedPorts.includes(p.port);
+
+    let cat = getPortCategory(p.port);
+    if (p.threat_level === "CRITICAL") cat = "CRITICAL";
+    else if (p.threat_level === "HIGH") cat = "HIGH RISK";
+    else if (isSuppressed || p.threat_level === "NOISE" || p.is_noise) cat = "NOISE";
     
     // Distance from center: loopback inside, 0.0.0.0 middle, external outside
     let distFactor = 0.65;
@@ -47,6 +54,7 @@ export default function AttackSurfaceRadar({ ports = [], selectedPort, onSelectP
       category: cat,
       angle,
       distFactor,
+      isSuppressed,
       color: CATEGORY_COLORS[cat] || CATEGORY_COLORS["USER / RPC"],
     };
   });
@@ -206,6 +214,18 @@ export default function AttackSurfaceRadar({ ports = [], selectedPort, onSelectP
       const isSelected = selectedPort && selectedPort.port === node.port;
 
       ctx.save();
+      if (node.isSuppressed) {
+        ctx.globalAlpha = 0.28;
+      }
+
+      if (node.category === "CRITICAL" || node.category === "HIGH RISK") {
+        ctx.beginPath();
+        ctx.arc(x, y, isHovered ? 14 : 10, 0, Math.PI * 2);
+        ctx.strokeStyle = node.color.stroke;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
       if (isHovered || isSelected) {
         // Target lock-on brackets
         ctx.strokeStyle = "#00f0ff";

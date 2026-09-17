@@ -21,6 +21,7 @@ Thumbs.db
 *.log
 
 *.db
+*.db-*
 *.sqlite
 *.sqlite3
 *.pt

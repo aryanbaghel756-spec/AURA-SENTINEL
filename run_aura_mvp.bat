@@ -57,7 +57,7 @@ if "%LAN_IP%"=="" set LAN_IP=192.168.x.x
 
 echo.
 echo ==============================================================================
-echo   AURA SENTINEL MVP IS LIVE! (10 ENGINES ONLINE)
+echo   AURA SENTINEL MVP IS LIVE! (11 ENGINES ONLINE - CYBER + FINANCIAL SOC)
 echo   - Local Dashboard   : http://localhost:5173
 echo   - Phone / Network   : http://%LAN_IP%:5173  ^<-- Open on Phone (Same Wi-Fi)
 echo   - Backend REST API  : http://127.0.0.1:8000

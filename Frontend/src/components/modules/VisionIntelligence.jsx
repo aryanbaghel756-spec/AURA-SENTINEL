@@ -4,6 +4,7 @@ import { api } from "../../services/api";
 export default function VisionIntelligence() {
   const [streamActive, setStreamActive] = useState(true);
   const [streamError, setStreamError] = useState(false);
+  const [isCinematic, setIsCinematic] = useState(false);
   const [key, setKey] = useState(0);
 
   // Vision & Gesture Settings State
@@ -201,35 +202,43 @@ export default function VisionIntelligence() {
 
           <div className="gesture-cheatsheet">
             <div className="gesture-item">
-              <span className="gesture-icon">🤞</span>
-              <span className="gesture-label">Cross Fingers: File Delete</span>
+              <span className="gesture-icon">✌️</span>
+              <span className="gesture-label">Peace (V): Window Jump (Alt+Tab)</span>
             </div>
             <div className="gesture-item">
-              <span className="gesture-icon">☝️</span>
-              <span className="gesture-label">Index Show: New Folder</span>
+              <span className="gesture-icon">🖐️</span>
+              <span className="gesture-label">Open Palm: Defensive Shield Active</span>
+            </div>
+            <div className="gesture-item">
+              <span className="gesture-icon">✊</span>
+              <span className="gesture-label">Fist: Input Standby / Pause</span>
             </div>
             <div className="gesture-item">
               <span className="gesture-icon">🤏</span>
-              <span className="gesture-label">Pinch Slide: Volume (+/-)</span>
-            </div>
-            <div className="gesture-item">
-              <span className="gesture-icon">🖱️</span>
-              <span className="gesture-label">Pinch & Move: Mouse Drag</span>
-            </div>
-            <div className="gesture-item">
-              <span className="gesture-icon">✌️</span>
-              <span className="gesture-label">Peace (V): Window Jump</span>
+              <span className="gesture-label">Thumb+Middle: Volume Up / Down</span>
             </div>
             <div className="gesture-item">
               <span className="gesture-icon">📜</span>
-              <span className="gesture-label">2-Fingers: Scroll Page</span>
+              <span className="gesture-label">2 Fingers: Scroll Up / Down</span>
+            </div>
+            <div className="gesture-item">
+              <span className="gesture-icon">☝️</span>
+              <span className="gesture-label">Index Point: Mouse Pointer</span>
+            </div>
+            <div className="gesture-item">
+              <span className="gesture-icon">🤏</span>
+              <span className="gesture-label">Thumb+Index: Click / Drag</span>
+            </div>
+            <div className="gesture-item">
+              <span className="gesture-icon">🤞</span>
+              <span className="gesture-label">Cross Fingers: File Delete</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Stream Container */}
-      <div className="vision-stream-container">
+      <div className={`vision-stream-container ${isCinematic ? "stream-expanded-container" : ""}`}>
         <div className="vision-stream-toolbar">
           <div className="toolbar-left">
             <span className="camera-label">SENSOR 01 (PRIMARY WEBCAM)</span>
@@ -239,6 +248,14 @@ export default function VisionIntelligence() {
           </div>
 
           <div className="toolbar-actions">
+            <button
+              className={`soc-btn-secondary small ${isCinematic ? "btn-active-highlight" : ""}`}
+              onClick={() => setIsCinematic(!isCinematic)}
+              title="Expand Camera Box to Full Width"
+              style={isCinematic ? { borderColor: "#00f0ff", color: "#00f0ff", boxShadow: "0 0 10px rgba(0,240,255,0.4)" } : {}}
+            >
+              {isCinematic ? "⊡ STANDARD VIEW" : "⛶ EXPAND CAMERA BOX"}
+            </button>
             <button
               className="soc-btn-secondary small"
               onClick={() => setStreamActive(!streamActive)}
@@ -251,13 +268,13 @@ export default function VisionIntelligence() {
           </div>
         </div>
 
-        <div className="vision-feed-wrapper">
+        <div className={`vision-feed-wrapper ${isCinematic ? "cinematic-expanded" : ""}`}>
           {streamActive && !streamError ? (
             <img
               key={key}
               src={streamUrl}
               alt="Live AURA Neural Vision Stream"
-              className="vision-feed"
+              className={`vision-feed ${isCinematic ? "feed-cinematic" : ""}`}
               onError={() => setStreamError(true)}
             />
           ) : (

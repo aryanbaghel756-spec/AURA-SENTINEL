@@ -38,6 +38,7 @@ import AIAssistant from "./components/modules/AIAssistant";
 import FileSecurity from "./components/modules/FileSecurity";
 import VisionIntelligence from "./components/modules/VisionIntelligence";
 import BlockchainLedger from "./components/modules/BlockchainLedger";
+import FinancialIntelligence from "./components/modules/FinancialIntelligence";
 
 export default function App() {
   const [activeModule, setActiveModule] = useState(null);
@@ -81,6 +82,16 @@ export default function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Detect direct URL route /financial-intelligence or hash
+  useEffect(() => {
+    const path = window.location.pathname.replace(/^\/+/, "");
+    const hash = window.location.hash.replace(/^#\/?/, "");
+    if (path === "financial-intelligence" || hash === "financial-intelligence") {
+      setSystemStarted(true);
+      setActiveModule("financial-intelligence");
+    }
   }, []);
 
   // Pre-load biometric model weights from /models
@@ -186,12 +197,18 @@ export default function App() {
   const handleOpenModule = (moduleId) => {
     audioService.playCommand();
     setActiveModule(moduleId);
+    if (moduleId === "financial-intelligence") {
+      window.history.pushState(null, "", "/financial-intelligence");
+    } else {
+      window.history.pushState(null, "", "/");
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBackToDashboard = () => {
     audioService.playClick();
     setActiveModule(null);
+    window.history.pushState(null, "", "/");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -284,6 +301,7 @@ export default function App() {
             {activeModule === "file-security" && <FileSecurity />}
             {activeModule === "vision-intelligence" && <VisionIntelligence />}
             {activeModule === "blockchain-ledger" && <BlockchainLedger />}
+            {activeModule === "financial-intelligence" && <FinancialIntelligence />}
           </div>
         </div>
       ) : systemStarted ? (

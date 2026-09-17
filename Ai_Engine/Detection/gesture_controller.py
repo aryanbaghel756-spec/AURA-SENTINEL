@@ -37,8 +37,8 @@ class GestureController:
         self.hands = self.mp_hands.Hands(
             static_image_mode=False,
             max_num_hands=1,
-            min_detection_confidence=0.65,
-            min_tracking_confidence=0.65,
+            min_detection_confidence=0.50,
+            min_tracking_confidence=0.50,
         )
         self.mp_draw = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
@@ -46,11 +46,11 @@ class GestureController:
         # Screen dimensions
         self.screen_w, self.screen_h = pyautogui.size()
         self.prev_x, self.prev_y = self.screen_w // 2, self.screen_h // 2
-        self.smoothing = 0.38  # Exponential smoothing factor
+        self.smoothing = 0.42  # Exponential smoothing factor
 
         # Interaction Boundary Margin (in frame percentage)
-        self.margin_x = 0.12
-        self.margin_y = 0.15
+        self.margin_x = 0.08
+        self.margin_y = 0.10
 
         # Mouse Drag & Click States
         self.is_dragging = False
@@ -60,7 +60,7 @@ class GestureController:
 
         # Volume Pinch Tracking
         self.last_volume_time = 0.0
-        self.volume_cooldown = 0.16
+        self.volume_cooldown = 0.15
         self.prev_volume_pinch_y = None
         self.simulated_volume_level = 50  # Display only
 
@@ -69,10 +69,7 @@ class GestureController:
         self.jump_cooldown = 0.85
 
         self.last_delete_time = 0.0
-        self.delete_cooldown = 1.4
-
-        self.last_folder_time = 0.0
-        self.folder_cooldown = 1.4
+        self.delete_cooldown = 1.5
 
         self.last_right_click_time = 0.0
         self.right_click_cooldown = 0.6
@@ -81,9 +78,8 @@ class GestureController:
         self.prev_scroll_y = None
         self.last_scroll_time = 0.0
 
-        # State Hold Timers (for deliberate intent verification)
+        # State Hold Timers
         self.finger_cross_hold_start = 0.0
-        self.index_show_hold_start = 0.0
 
         # HUD Feedback
         self.active_gesture = "SEARCHING"
@@ -92,10 +88,9 @@ class GestureController:
         self.feedback_banner_time = 0.0
         self.feedback_banner_color = (0, 240, 255)
 
-    def _euclidean_distance(self, p1, p2, frame_w, frame_h):
-        x1, y1 = p1.x * frame_w, p1.y * frame_h
-        x2, y2 = p2.x * frame_w, p2.y * frame_h
-        return math.hypot(x2 - x1, y2 - y1)
+    def _norm_dist(self, p1, p2):
+        """Calculates normalized Euclidean distance between two landmarks."""
+        return math.hypot(p2.x - p1.x, p2.y - p1.y)
 
     def set_feedback(self, text: str, color=(0, 240, 255), duration=1.5):
         self.feedback_banner = text
@@ -125,7 +120,6 @@ class GestureController:
             self.prev_volume_pinch_y = None
             self.prev_scroll_y = None
             self.finger_cross_hold_start = 0.0
-            self.index_show_hold_start = 0.0
             return self._draw_hud(frame, None, False)
 
         hand_landmarks = results.multi_hand_landmarks[0]
@@ -144,7 +138,6 @@ class GestureController:
         wrist = lm[0]
         thumb_tip = lm[4]
         thumb_ip = lm[3]
-        thumb_mcp = lm[2]
 
         index_tip = lm[8]
         index_pip = lm[6]
@@ -162,23 +155,33 @@ class GestureController:
         pinky_pip = lm[18]
         pinky_mcp = lm[17]
 
-        # Finger Extension Status (y is inverted: smaller y is HIGHER up)
-        index_up = index_tip.y < index_pip.y
-        middle_up = middle_tip.y < middle_pip.y
-        ring_up = ring_tip.y < ring_pip.y
-        pinky_up = pinky_tip.y < pinky_pip.y
+        # Robust Finger Extension Status (scale-invariant via wrist distance)
+        def is_extended(tip, pip, mcp):
+            dist_tip = math.hypot(tip.x - wrist.x, tip.y - wrist.y)
+            dist_pip = math.hypot(pip.x - wrist.x, pip.y - wrist.y)
+            return (dist_tip > dist_pip * 1.10) and (tip.y < mcp.y or dist_tip > dist_pip * 1.25)
 
-        # Distances
-        thumb_index_dist = self._euclidean_distance(thumb_tip, index_tip, w, h)
-        thumb_middle_dist = self._euclidean_distance(thumb_tip, middle_tip, w, h)
-        thumb_ring_dist = self._euclidean_distance(thumb_tip, ring_tip, w, h)
-        index_middle_dist = self._euclidean_distance(index_tip, middle_tip, w, h)
+        index_up = is_extended(index_tip, index_pip, index_mcp)
+        middle_up = is_extended(middle_tip, middle_pip, middle_mcp)
+        ring_up = is_extended(ring_tip, ring_pip, ring_mcp)
+        pinky_up = is_extended(pinky_tip, pinky_pip, pinky_mcp)
 
-        # Dynamic Cursor Position Mapping with Margins
+        # Thumb extension
+        thumb_dist_tip = math.hypot(thumb_tip.x - wrist.x, thumb_tip.y - wrist.y)
+        thumb_dist_ip = math.hypot(thumb_ip.x - wrist.x, thumb_ip.y - wrist.y)
+        thumb_up = thumb_dist_tip > thumb_dist_ip * 1.15
+
+        # Normalized Distances
+        thumb_index_dist = self._norm_dist(thumb_tip, index_tip)
+        thumb_middle_dist = self._norm_dist(thumb_tip, middle_tip)
+        thumb_ring_dist = self._norm_dist(thumb_tip, ring_tip)
+        index_middle_dist = self._norm_dist(index_tip, middle_tip)
+
+        # Dynamic Cursor Position Mapping (frame is already mirrored in main.py)
         norm_x = (index_tip.x - self.margin_x) / (1.0 - 2 * self.margin_x)
         norm_y = (index_tip.y - self.margin_y) / (1.0 - 2 * self.margin_y)
-        norm_x = np.clip(1.0 - norm_x, 0.0, 1.0)  # Mirror flip x
-        norm_y = np.clip(norm_y, 0.0, 1.0)
+        norm_x = float(np.clip(norm_x, 0.0, 1.0))
+        norm_y = float(np.clip(norm_y, 0.0, 1.0))
 
         target_x = int(norm_x * self.screen_w)
         target_y = int(norm_y * self.screen_h)
@@ -187,67 +190,9 @@ class GestureController:
         self.prev_x, self.prev_y = curr_x, curr_y
 
         # =====================================================================
-        # GESTURE 1: 🤞 CROSSED FINGERS -> FILE DELETE (Delete Key)
+        # GESTURE 1: ✌️ PEACE SIGN -> WINDOW JUMP (Alt + Tab)
         # =====================================================================
-        # Index and Middle UP, Ring and Pinky curled.
-        # Check if Index and Middle are crossed: tips have inverted x relative to MCP
-        mcp_diff = index_mcp.x - middle_mcp.x
-        tip_diff = index_tip.x - middle_tip.x
-        is_crossed = (mcp_diff * tip_diff < 0) or (index_middle_dist < 26 and abs(index_pip.x - middle_pip.x) < 0.03)
-
-        if index_up and middle_up and not ring_up and not pinky_up and is_crossed:
-            self.active_gesture = "FINGER_CROSS_DELETE"
-            self.gesture_feedback = "🤞 CROSSED FINGERS: DELETING FILE..."
-
-            if self.finger_cross_hold_start == 0.0:
-                self.finger_cross_hold_start = now
-
-            if (now - self.finger_cross_hold_start >= 0.35) and (now - self.last_delete_time > self.delete_cooldown):
-                try:
-                    pyautogui.press("delete")
-                    self.last_delete_time = now
-                    self.set_feedback("🚨 FILE DELETED (DELETE KEY)", color=(0, 0, 255), duration=2.0)
-                except Exception as e:
-                    print(f"Delete key error: {e}")
-
-            return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
-        else:
-            self.finger_cross_hold_start = 0.0
-
-        # =====================================================================
-        # GESTURE 2: ☝️ SINGLE INDEX FINGER SHOW -> CREATE NEW FOLDER (Ctrl+Shift+N)
-        # =====================================================================
-        # Only Index pointing UP, Middle, Ring, Pinky curled into palm, Thumb closed
-        thumb_closed = thumb_tip.x > min(index_mcp.x, middle_mcp.x) if thumb_tip.y > index_mcp.y else True
-        if index_up and not middle_up and not ring_up and not pinky_up and thumb_index_dist > 55:
-            self.active_gesture = "INDEX_SHOW_NEW_FOLDER"
-            self.gesture_feedback = "☝️ INDEX SHOW: CREATING NEW FOLDER..."
-
-            if self.index_show_hold_start == 0.0:
-                self.index_show_hold_start = now
-
-            if (now - self.index_show_hold_start >= 0.40) and (now - self.last_folder_time > self.folder_cooldown):
-                try:
-                    pyautogui.hotkey("ctrl", "shift", "n")
-                    self.last_folder_time = now
-                    self.set_feedback("📁 NEW FOLDER CREATED (Ctrl+Shift+N)", color=(0, 255, 136), duration=2.0)
-                except Exception as e:
-                    print(f"New folder error: {e}")
-
-            # Also allows smooth mouse aiming
-            try:
-                pyautogui.moveTo(curr_x, curr_y, _pause=False)
-            except Exception:
-                pass
-
-            return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
-        else:
-            self.index_show_hold_start = 0.0
-
-        # =====================================================================
-        # GESTURE 3: ✌️ PEACE SIGN -> WINDOW JUMP (Alt + Tab)
-        # =====================================================================
-        if index_up and middle_up and not ring_up and not pinky_up and index_middle_dist > 38 and not is_crossed:
+        if index_up and middle_up and not ring_up and not pinky_up and index_middle_dist > 0.040:
             self.active_gesture = "WINDOW_JUMP"
             self.gesture_feedback = "✌️ PEACE SIGN: ALT+TAB WINDOW SWITCH"
 
@@ -262,22 +207,46 @@ class GestureController:
             return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
 
         # =====================================================================
-        # GESTURE 4: 🤏 PINCH VOLUME UP / DOWN (Thumb + Middle Finger Pinch & Slide)
+        # GESTURE 2: 🖐️ OPEN PALM -> DEFENSIVE SHIELD ACTIVE
         # =====================================================================
-        if thumb_middle_dist < 36:
+        if thumb_up and index_up and middle_up and ring_up and pinky_up:
+            self.active_gesture = "OPEN_PALM_SHIELD"
+            self.gesture_feedback = "🖐️ OPEN PALM: ZERO-TRUST DEFENSIVE SHIELD ACTIVE"
+            palm_cx = int(middle_mcp.x * w)
+            palm_cy = int(middle_mcp.y * h)
+            cv2.circle(frame, (palm_cx, palm_cy), int(h * 0.22), (0, 255, 136), 2)
+            cv2.circle(frame, (palm_cx, palm_cy), int(h * 0.25), (0, 240, 255), 1)
+            return self._draw_hud(frame, None, is_pinched=False)
+
+        # =====================================================================
+        # GESTURE 3: ✊ CLOSED FIST -> INPUT STANDBY / PAUSE
+        # =====================================================================
+        if not index_up and not middle_up and not ring_up and not pinky_up and not thumb_up:
+            self.active_gesture = "CLOSED_FIST_STANDBY"
+            self.gesture_feedback = "✊ FIST: INPUT STANDBY / PAUSED"
+            if self.is_dragging:
+                try:
+                    pyautogui.mouseUp()
+                except Exception:
+                    pass
+                self.is_dragging = False
+            return self._draw_hud(frame, None, is_pinched=False)
+
+        # =====================================================================
+        # GESTURE 4: 🤏 PINCH VOLUME UP / DOWN (Thumb + Middle Finger Slide)
+        # =====================================================================
+        if thumb_middle_dist < 0.065:
             self.active_gesture = "VOLUME_PINCH_SLIDE"
             current_pinch_y = int(middle_tip.y * h)
 
-            # Draw volume visual feedback ring
             mid_px = int((thumb_tip.x + middle_tip.x) / 2.0 * w)
             mid_py = int((thumb_tip.y + middle_tip.y) / 2.0 * h)
-            cv2.circle(frame, (mid_px, mid_py), 18, (0, 255, 255), 3)
+            cv2.circle(frame, (mid_px, mid_py), 20, (0, 255, 255), 3)
 
             if self.prev_volume_pinch_y is not None:
-                delta_y = self.prev_volume_pinch_y - current_pinch_y  # Moving UP -> delta_y is POSITIVE
-                if abs(delta_y) > 12 and (now - self.last_volume_time > self.volume_cooldown):
+                delta_y = self.prev_volume_pinch_y - current_pinch_y  # UP is positive
+                if abs(delta_y) > 10 and (now - self.last_volume_time > self.volume_cooldown):
                     if delta_y > 0:
-                        # Moving UP -> Volume UP
                         try:
                             pyautogui.press("volumeup")
                             self.simulated_volume_level = min(100, self.simulated_volume_level + 5)
@@ -285,7 +254,6 @@ class GestureController:
                         except Exception:
                             pass
                     else:
-                        # Moving DOWN -> Volume DOWN
                         try:
                             pyautogui.press("volumedown")
                             self.simulated_volume_level = max(0, self.simulated_volume_level - 5)
@@ -304,35 +272,61 @@ class GestureController:
             self.prev_volume_pinch_y = None
 
         # =====================================================================
-        # GESTURE 5: 📜 TWO-FINGER SCROLL UP / DOWN
+        # GESTURE 5: 📜 TWO-FINGER SCROLL (Index + Middle Held Together)
         # =====================================================================
-        if index_up and middle_up and ring_up and not pinky_up and index_middle_dist < 32:
+        if index_up and middle_up and not ring_up and not pinky_up and index_middle_dist <= 0.040:
             self.active_gesture = "TWO_FINGER_SCROLL"
             current_scroll_y = int(index_tip.y * h)
 
             if self.prev_scroll_y is not None:
                 delta_scroll = self.prev_scroll_y - current_scroll_y
-                if abs(delta_scroll) > 10 and (now - self.last_scroll_time > 0.08):
-                    scroll_amt = 150 if delta_scroll > 0 else -150
+                if abs(delta_scroll) > 8 and (now - self.last_scroll_time > 0.07):
+                    scroll_amt = 180 if delta_scroll > 0 else -180
                     try:
                         pyautogui.scroll(scroll_amt)
                         self.last_scroll_time = now
-                        self.set_feedback("📜 SCROLLING" if delta_scroll > 0 else "📜 SCROLLING DOWN", color=(0, 200, 255), duration=0.5)
+                        self.set_feedback("📜 SCROLLING UP" if delta_scroll > 0 else "📜 SCROLLING DOWN", color=(0, 200, 255), duration=0.5)
                     except Exception:
                         pass
                     self.prev_scroll_y = current_scroll_y
             else:
                 self.prev_scroll_y = current_scroll_y
 
-            self.gesture_feedback = "📜 SCROLLING: MOVE UP OR DOWN"
+            self.gesture_feedback = "📜 TWO FINGERS: MOVE UP/DOWN TO SCROLL"
             return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
         else:
             self.prev_scroll_y = None
 
         # =====================================================================
-        # GESTURE 6: 🖱️ RIGHT CLICK (Thumb + Ring Finger Pinch)
+        # GESTURE 6: 🤞 CROSSED FINGERS -> FILE DELETE
         # =====================================================================
-        if thumb_ring_dist < 34 and (now - self.last_right_click_time > self.right_click_cooldown):
+        mcp_diff = index_mcp.x - middle_mcp.x
+        tip_diff = index_tip.x - middle_tip.x
+        is_crossed = (mcp_diff * tip_diff < 0) or (index_middle_dist < 0.028 and abs(index_pip.x - middle_pip.x) < 0.035)
+
+        if index_up and middle_up and not ring_up and not pinky_up and is_crossed:
+            self.active_gesture = "FINGER_CROSS_DELETE"
+            self.gesture_feedback = "🤞 CROSSED FINGERS: HOLD TO DELETE FILE..."
+
+            if self.finger_cross_hold_start == 0.0:
+                self.finger_cross_hold_start = now
+
+            if (now - self.finger_cross_hold_start >= 0.35) and (now - self.last_delete_time > self.delete_cooldown):
+                try:
+                    pyautogui.press("delete")
+                    self.last_delete_time = now
+                    self.set_feedback("🚨 FILE DELETED (DELETE KEY)", color=(0, 0, 255), duration=2.0)
+                except Exception as e:
+                    print(f"Delete key error: {e}")
+
+            return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
+        else:
+            self.finger_cross_hold_start = 0.0
+
+        # =====================================================================
+        # GESTURE 7: 🖱️ RIGHT CLICK (Thumb + Ring Finger Pinch)
+        # =====================================================================
+        if thumb_ring_dist < 0.058 and (now - self.last_right_click_time > self.right_click_cooldown):
             try:
                 pyautogui.rightClick()
                 self.last_right_click_time = now
@@ -344,15 +338,16 @@ class GestureController:
             return self._draw_hud(frame, (curr_x, curr_y), is_pinched=False)
 
         # =====================================================================
-        # GESTURE 7: 🖱️ FULL MOUSE AUTOMATION (Pointer Move, Click, Pick & Drag)
+        # GESTURE 8: 🖱️ MOUSE NAVIGATION, CLICK, DRAG & DROP
         # =====================================================================
-        is_pinched = thumb_index_dist < 35
+        is_pinched = thumb_index_dist < 0.060
 
-        # Move mouse cursor to tracked index point
-        try:
-            pyautogui.moveTo(curr_x, curr_y, _pause=False)
-        except Exception:
-            pass
+        # Smooth pointer movement when index is pointing
+        if index_up:
+            try:
+                pyautogui.moveTo(curr_x, curr_y, _pause=False)
+            except Exception:
+                pass
 
         if is_pinched:
             if self.pinch_start_time == 0.0:
@@ -374,12 +369,12 @@ class GestureController:
                 self.gesture_feedback = f"✊ DRAGGING FILE @ ({curr_x}, {curr_y})"
             else:
                 self.active_gesture = "PINCH_DETECTED"
-                self.gesture_feedback = "🤏 PINCHING (TAP TO CLICK / HOLD TO DRAG)"
+                self.gesture_feedback = "🤏 PINCHING (TAP FOR CLICK / HOLD TO DRAG)"
 
             # Visual Pinch Indicator
             px = int((thumb_tip.x + index_tip.x) / 2.0 * w)
             py = int((thumb_tip.y + index_tip.y) / 2.0 * h)
-            cv2.circle(frame, (px, py), 16, (0, 255, 136) if self.is_dragging else (0, 240, 255), 3)
+            cv2.circle(frame, (px, py), 18, (0, 255, 136) if self.is_dragging else (0, 240, 255), 3)
 
         else:
             # Pinch Released
@@ -401,14 +396,12 @@ class GestureController:
                     # Quick Tap Pinch -> LEFT CLICK / DOUBLE CLICK
                     time_since_last = now - self.last_pinch_release_time
                     if time_since_last < 0.38:
-                        # Double Click
                         try:
                             pyautogui.doubleClick()
                             self.set_feedback("⚡ DOUBLE CLICK", color=(0, 255, 200), duration=1.0)
                         except Exception:
                             pass
                     else:
-                        # Single Click
                         try:
                             pyautogui.click()
                             self.set_feedback("👆 LEFT CLICK", color=(0, 240, 255), duration=0.8)
@@ -419,7 +412,7 @@ class GestureController:
                     self.active_gesture = "MOUSE_CLICK"
                     self.gesture_feedback = "👆 MOUSE CLICK EXECUTED"
             else:
-                self.active_gesture = "MOUSE_MOVE"
+                self.active_gesture = "POINTER_NAV"
                 self.gesture_feedback = f"🖱️ POINTER @ ({curr_x}, {curr_y})"
 
         return self._draw_hud(frame, (curr_x, curr_y), is_pinched)
@@ -433,13 +426,12 @@ class GestureController:
         y1 = int(self.margin_y * h)
         x2 = int((1.0 - self.margin_x) * w)
         y2 = int((1.0 - self.margin_y) * h)
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 1)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (40, 70, 110), 1)
 
         # Crosshair on cursor pos
         if cursor_pos:
             cx, cy = cursor_pos
-            # Map screen back to frame for local crosshair display
-            norm_cx = 1.0 - (cx / self.screen_w)
+            norm_cx = cx / self.screen_w
             norm_cy = cy / self.screen_h
             fx = int(norm_cx * w)
             fy = int(norm_cy * h)
@@ -452,15 +444,15 @@ class GestureController:
 
         # Action Announcement Banner
         if now < self.feedback_banner_time and self.feedback_banner:
-            banner_w = 460
+            banner_w = min(540, w - 40)
             bx1 = w // 2 - banner_w // 2
             bx2 = w // 2 + banner_w // 2
-            cv2.rectangle(frame, (bx1, h - 75), (bx2, h - 25), (10, 15, 30), -1)
-            cv2.rectangle(frame, (bx1, h - 75), (bx2, h - 25), self.feedback_banner_color, 2)
+            cv2.rectangle(frame, (bx1, h - 85), (bx2, h - 30), (10, 15, 30), -1)
+            cv2.rectangle(frame, (bx1, h - 85), (bx2, h - 30), self.feedback_banner_color, 2)
             cv2.putText(
                 frame,
                 self.feedback_banner,
-                (bx1 + 20, h - 42),
+                (bx1 + 16, h - 48),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.62,
                 self.feedback_banner_color,
@@ -468,8 +460,8 @@ class GestureController:
             )
 
         # Bottom Telemetry Bar
-        cv2.rectangle(frame, (0, h - 25), (w, h), (10, 15, 25), -1)
+        cv2.rectangle(frame, (0, h - 28), (w, h), (10, 15, 25), -1)
         hud_text = f"GESTURE: {self.active_gesture} | {self.gesture_feedback}"
-        cv2.putText(frame, hud_text, (15, h - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 240, 255), 1)
+        cv2.putText(frame, hud_text, (15, h - 9), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 240, 255), 1)
 
         return frame

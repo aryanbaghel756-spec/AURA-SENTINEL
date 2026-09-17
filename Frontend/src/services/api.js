@@ -3,11 +3,7 @@
  * Interacts with the FastAPI backend running on http://127.0.0.1:8000
  */
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== "undefined" && window.location.hostname
-    ? `http://${window.location.hostname}:8000`
-    : "http://127.0.0.1:8000");
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -31,7 +27,7 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   // Base health
-  checkHealth: () => request("/"),
+  checkHealth: () => request("/api/health"),
 
   // Module 01: System Monitoring
   getSystemInfo: () => request("/api/system"),
@@ -39,6 +35,16 @@ export const api = {
 
   // Module 02: Attack Surface
   getAttackSurface: () => request("/api/attack-surface"),
+  remediatePort: (payload) =>
+    request("/api/attack-surface/remediate", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  terminateDangerPorts: (payload = {}) =>
+    request("/api/attack-surface/terminate-danger-ports", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 
   // Module 03: Risk Intelligence
   getRiskIntelligence: () => request("/api/risk-intelligence"),
@@ -171,6 +177,30 @@ export const api = {
   restoreBlockchainConsensus: () =>
     request("/api/blockchain/restore", {
       method: "POST",
+    }),
+
+  // Module 11: Financial Intelligence & Market Analysis
+  getFinanceHealth: () => request("/api/finance/health"),
+  getFinanceMarket: () => request("/api/finance/market"),
+  saveFinanceProfile: (payload) =>
+    request("/api/finance/profile", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  compareFinanceCategories: (payload = {}) =>
+    request("/api/finance/compare", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  analyzeFinanceSuitability: (payload) =>
+    request("/api/finance/analyze", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  simulateFinanceScenarios: (payload) =>
+    request("/api/finance/simulate", {
+      method: "POST",
+      body: JSON.stringify(payload),
     }),
 };
 

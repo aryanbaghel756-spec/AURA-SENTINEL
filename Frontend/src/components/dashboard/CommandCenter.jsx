@@ -56,6 +56,11 @@ const MODULE_DETAILS = {
     desc: "Cryptographic SHA-256 Merkle risk ledger & tamper-proof audit trail for SIH26105 compliance.",
     tag: "BLOCKCHAIN",
   },
+  "financial-intelligence": {
+    badge: "MACRO DECISION SUPPORT",
+    desc: "Objective quantitative evaluation comparing sovereign securities against market equities with scenario simulations.",
+    tag: "CAPITAL RADAR",
+  },
 };
 
 export default function CommandCenter({ onOpenModule, onOpenPalette, onGenerateReport }) {

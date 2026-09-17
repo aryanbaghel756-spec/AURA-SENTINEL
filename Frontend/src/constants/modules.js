@@ -9,4 +9,5 @@ export const MODULE_REGISTRY = [
   { id: "file-security", number: "08", name: "File Security", icon: "▣" },
   { id: "vision-intelligence", number: "09", name: "Vision Intelligence", icon: "◎" },
   { id: "blockchain-ledger", number: "10", name: "Blockchain Ledger", icon: "⛓" },
+  { id: "financial-intelligence", number: "11", name: "Financial Intelligence", icon: "📊" },
 ];

@@ -67,5 +67,734 @@
     "previous_hash": "01697ba9826b448fa3686e8b905ab6c9043e5966527fde8fdad919e4625384cb",
     "nonce": 13,
     "hash": "02ae93412d0d54a64d3084c170f82b5e5cae2251cdad44b56568db8b22593706"
+  },
+  {
+    "index": 4,
+    "timestamp": "2026-09-17T07:02:18.560642Z",
+    "event_type": "INVESTMENT_OPTIMIZATION",
+    "data": {
+      "business_type": "Small Business",
+      "monthly_budget_inr": 50000.0,
+      "systems_count": 10,
+      "data_value_inr": 500000.0,
+      "recommended_plan": "ESSENTIAL DEFENSE",
+      "projected_risk_reduction_pct": 15,
+      "expected_annual_savings_inr": 0,
+      "rosi_roi_pct": 0
+    },
+    "merkle_root": "5aab7fc3c222a8753c2330b644f5cbe56bfa121c1e7bf72276de92bce2780214",
+    "previous_hash": "02ae93412d0d54a64d3084c170f82b5e5cae2251cdad44b56568db8b22593706",
+    "nonce": 1,
+    "hash": "0903a22ded9278c89fbd7fdded46e2c96a5f2f7af77e0b15156a2c1761f0736b"
+  },
+  {
+    "index": 5,
+    "timestamp": "2026-09-17T07:19:26.101386Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789629565.9436398
+    },
+    "merkle_root": "abde85d7a54d49e0596b4423ce3407e590287ae0ccc92bde31405a2208e6ffd4",
+    "previous_hash": "0903a22ded9278c89fbd7fdded46e2c96a5f2f7af77e0b15156a2c1761f0736b",
+    "nonce": 5,
+    "hash": "0383fb5cf26b3ec25ccd71b97b1162163f3244dc6581fc551dcf5cfd90874da6"
+  },
+  {
+    "index": 6,
+    "timestamp": "2026-09-17T07:23:59.379370Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789629839.215644
+    },
+    "merkle_root": "2822320f5d52c77d914ab212dcd58e285a1d73e1324a7876235c7b28bf0a333d",
+    "previous_hash": "0383fb5cf26b3ec25ccd71b97b1162163f3244dc6581fc551dcf5cfd90874da6",
+    "nonce": 18,
+    "hash": "0a7124fb6cad9b3c428b4726f113147237d1a70ddfb7df98154332cc5921d101"
+  },
+  {
+    "index": 7,
+    "timestamp": "2026-09-17T07:24:32.005990Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789629871.6641192
+    },
+    "merkle_root": "2d833f447f27fcc01a9e5e35c1d0e2327f445b3a1a4a66b9fc958cc3db96c617",
+    "previous_hash": "0a7124fb6cad9b3c428b4726f113147237d1a70ddfb7df98154332cc5921d101",
+    "nonce": 3,
+    "hash": "009cde064c881629f70766b4a5913ca40e1d7baa223eea34e83ee63e3af3c304"
+  },
+  {
+    "index": 8,
+    "timestamp": "2026-09-17T10:08:35.498080Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789639715.2455583
+    },
+    "merkle_root": "4c0268d32418cc35c17a8f3dafa2c8dcee4e8d6d0bfe8444c7a2fe8b7f8f79c4",
+    "previous_hash": "009cde064c881629f70766b4a5913ca40e1d7baa223eea34e83ee63e3af3c304",
+    "nonce": 9,
+    "hash": "035869db138545fc6b687537c6a9e571d968714e1375e070a214ed15de30ddc7"
+  },
+  {
+    "index": 9,
+    "timestamp": "2026-09-17T10:08:41.975835Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789639721.7085347
+    },
+    "merkle_root": "847f7d18524bf650eae0831e552ff1ddbdc08f5245159d23f7af0d5e70371d8c",
+    "previous_hash": "035869db138545fc6b687537c6a9e571d968714e1375e070a214ed15de30ddc7",
+    "nonce": 2,
+    "hash": "029060089540b8a4e72429025aee52e67fe8eb3e47fc8d5b27c663502bdb3115"
+  },
+  {
+    "index": 10,
+    "timestamp": "2026-09-17T10:08:46.117466Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789639725.9370039
+    },
+    "merkle_root": "ec24d9fb0f8bcd3fa69e1c58269b9d2d532934cb2d7868fce7f35e89d0e7de46",
+    "previous_hash": "029060089540b8a4e72429025aee52e67fe8eb3e47fc8d5b27c663502bdb3115",
+    "nonce": 52,
+    "hash": "0567de05164c0b0be1d785f431d0e7d9a8fd07a82d93008bcf378d8df86e10b6"
+  },
+  {
+    "index": 11,
+    "timestamp": "2026-09-17T10:10:19.904005Z",
+    "event_type": "PROCESS_TERMINATION",
+    "data": {
+      "port": 4444,
+      "pid": 1740,
+      "process_name": "python.exe",
+      "remediation": "SIGKILL_EXECUTION",
+      "timestamp": 1789639819.888778
+    },
+    "merkle_root": "d28fdccb987ecddc575369cbaad87cf918d68b820cfed4572377f733689d92d3",
+    "previous_hash": "0567de05164c0b0be1d785f431d0e7d9a8fd07a82d93008bcf378d8df86e10b6",
+    "nonce": 7,
+    "hash": "0f7e7b9a7c213f3d259a45ea4fdb4c03deb8fc12ece3ec23aed9c92a6bc8a181"
+  },
+  {
+    "index": 12,
+    "timestamp": "2026-09-17T10:10:33.539020Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639833.2559185
+    },
+    "merkle_root": "804d663e66761719e90ef60c55bd95c74a5bcc88c50e17c37011ecebcac900ca",
+    "previous_hash": "0f7e7b9a7c213f3d259a45ea4fdb4c03deb8fc12ece3ec23aed9c92a6bc8a181",
+    "nonce": 5,
+    "hash": "07899596f1b3b8d6e055941be193598efb06d9d03e8d7dda10d63aa2ff1d3300"
+  },
+  {
+    "index": 13,
+    "timestamp": "2026-09-17T10:10:33.815775Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639833.2559185
+    },
+    "merkle_root": "804d663e66761719e90ef60c55bd95c74a5bcc88c50e17c37011ecebcac900ca",
+    "previous_hash": "07899596f1b3b8d6e055941be193598efb06d9d03e8d7dda10d63aa2ff1d3300",
+    "nonce": 9,
+    "hash": "0619791ba7d10da0280ab2cd8d01cd8a85692734224c6efddbe9b27c69bdeb2d"
+  },
+  {
+    "index": 14,
+    "timestamp": "2026-09-17T10:10:34.125995Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639833.2559185
+    },
+    "merkle_root": "359d6755e56b924c01a06c67f945fd9ad68e74599bcf4a101998aad5fdbff17c",
+    "previous_hash": "0619791ba7d10da0280ab2cd8d01cd8a85692734224c6efddbe9b27c69bdeb2d",
+    "nonce": 13,
+    "hash": "03cea1c3a33af7bd0e5a2f7962582ff86eaed39b1e51274ec7de99523385d0ad"
+  },
+  {
+    "index": 15,
+    "timestamp": "2026-09-17T10:10:34.252968Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "service": "NetBIOS Session Spoofing",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_139",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639833.2559185
+    },
+    "merkle_root": "fdf9628b48b38a4f94e8a4d5b415d7f23cb93f801713b28f4d1d03c13d2aaa7a",
+    "previous_hash": "03cea1c3a33af7bd0e5a2f7962582ff86eaed39b1e51274ec7de99523385d0ad",
+    "nonce": 19,
+    "hash": "05e1f3a2cd17678805b1295dcc2d088d3e71fa1562dbd7abfb6a716d3cf9ba43"
+  },
+  {
+    "index": 16,
+    "timestamp": "2026-09-17T10:10:34.377692Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639833.2559185
+    },
+    "merkle_root": "359d6755e56b924c01a06c67f945fd9ad68e74599bcf4a101998aad5fdbff17c",
+    "previous_hash": "05e1f3a2cd17678805b1295dcc2d088d3e71fa1562dbd7abfb6a716d3cf9ba43",
+    "nonce": 17,
+    "hash": "01fa65c906dad1068174a9e3d5d8731f995770aad9c4e3429a93d3029bbafb90"
+  },
+  {
+    "index": 17,
+    "timestamp": "2026-09-17T10:10:40.116188Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639839.943157
+    },
+    "merkle_root": "06bb20f279f7adf16cd1e29282629a44c24ce41df3422f789797c242a606f28a",
+    "previous_hash": "01fa65c906dad1068174a9e3d5d8731f995770aad9c4e3429a93d3029bbafb90",
+    "nonce": 11,
+    "hash": "0cfbe7fd90b09100521c49640de26e261d84880a25694a8b037f1b0482a1c508"
+  },
+  {
+    "index": 18,
+    "timestamp": "2026-09-17T10:10:40.232917Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639839.943157
+    },
+    "merkle_root": "06bb20f279f7adf16cd1e29282629a44c24ce41df3422f789797c242a606f28a",
+    "previous_hash": "0cfbe7fd90b09100521c49640de26e261d84880a25694a8b037f1b0482a1c508",
+    "nonce": 10,
+    "hash": "0c8e2898e5ae4a807ea56e46551c4f9284eb09ca84718de614c416ebef6876d7"
+  },
+  {
+    "index": 19,
+    "timestamp": "2026-09-17T10:10:40.358600Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639839.943157
+    },
+    "merkle_root": "784d0ab889c8f2a2d8700d4877154574033ede950170d681cb8967f0c0752065",
+    "previous_hash": "0c8e2898e5ae4a807ea56e46551c4f9284eb09ca84718de614c416ebef6876d7",
+    "nonce": 60,
+    "hash": "0d1f9c5ec0a2c944c1377321bb31f5833f172d82603bfe64ed8ba2b1a038af52"
+  },
+  {
+    "index": 20,
+    "timestamp": "2026-09-17T10:10:40.488254Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "service": "NetBIOS Session Spoofing",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_139",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639839.943157
+    },
+    "merkle_root": "e38bb20c556a3c0227d297f5f368690c0c78c4f7623565c413465171a987220e",
+    "previous_hash": "0d1f9c5ec0a2c944c1377321bb31f5833f172d82603bfe64ed8ba2b1a038af52",
+    "nonce": 13,
+    "hash": "0bd315701c607f4b8b77ca1b223854bf1171bca1ba9ebee0c4c9e645f7c909f6"
+  },
+  {
+    "index": 21,
+    "timestamp": "2026-09-17T10:10:40.612251Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789639839.943157
+    },
+    "merkle_root": "784d0ab889c8f2a2d8700d4877154574033ede950170d681cb8967f0c0752065",
+    "previous_hash": "0bd315701c607f4b8b77ca1b223854bf1171bca1ba9ebee0c4c9e645f7c909f6",
+    "nonce": 40,
+    "hash": "07a5710d8bd000840ac86facab61d001a44ded9f95133794beeddf646755ee2e"
+  },
+  {
+    "index": 22,
+    "timestamp": "2026-09-17T10:17:56.558862Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 4,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640276.398962
+    },
+    "merkle_root": "8b5a1bde004f8f4e2a094a5ff190d455c4b8a4ad9bdb7331b132774e2d32f22e",
+    "previous_hash": "07a5710d8bd000840ac86facab61d001a44ded9f95133794beeddf646755ee2e",
+    "nonce": 20,
+    "hash": "08af1b39c1ad32fdd1568eb32ceeb87886516cdb109e65da475adee5446fec24"
+  },
+  {
+    "index": 23,
+    "timestamp": "2026-09-17T10:18:08.575943Z",
+    "event_type": "PROCESS_TERMINATION",
+    "data": {
+      "port": 4444,
+      "pid": 3568,
+      "process_name": "python.exe",
+      "remediation": "SIGKILL_EXECUTION",
+      "timestamp": 1789640288.5516665
+    },
+    "merkle_root": "fa553072ab6ceb03cf6b6d78dbd4ff51dea3b453d6bc522c424415dad3e0ac5b",
+    "previous_hash": "08af1b39c1ad32fdd1568eb32ceeb87886516cdb109e65da475adee5446fec24",
+    "nonce": 2,
+    "hash": "018624daf9a48ddbdb45d46e5a3d7267faea25a821802021585dafa891757423"
+  },
+  {
+    "index": 24,
+    "timestamp": "2026-09-17T10:19:12.771320Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640352.4416287
+    },
+    "merkle_root": "1f4ce9284ebe97cafbab62603de9a954d80939f1cf0535da46eb1283d8b4d330",
+    "previous_hash": "018624daf9a48ddbdb45d46e5a3d7267faea25a821802021585dafa891757423",
+    "nonce": 64,
+    "hash": "0e95606e517572238afae8176aa777d2263a077b929768045143147bcb9789b9"
+  },
+  {
+    "index": 25,
+    "timestamp": "2026-09-17T10:19:18.825490Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640358.5534713
+    },
+    "merkle_root": "9874f29f04ac022c43a3d81aacae632bdf37322f8c137c509a0c53c6b2ab1455",
+    "previous_hash": "0e95606e517572238afae8176aa777d2263a077b929768045143147bcb9789b9",
+    "nonce": 12,
+    "hash": "0d38f821c4987c6b504a0ca6626b8d1a455485b50d816d119e00b1be15847591"
+  },
+  {
+    "index": 26,
+    "timestamp": "2026-09-17T10:19:24.805597Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640364.5253778
+    },
+    "merkle_root": "06af3161ec25d2c733b8c18e177e3b8e7ff8b4c3578cbae243fbcc9664d222f6",
+    "previous_hash": "0d38f821c4987c6b504a0ca6626b8d1a455485b50d816d119e00b1be15847591",
+    "nonce": 5,
+    "hash": "0e84c940606ef722e03e9dfb4789e6d255f24cbb8903fd780043f864de756ec8"
+  },
+  {
+    "index": 27,
+    "timestamp": "2026-09-17T10:19:30.415407Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640370.1394684
+    },
+    "merkle_root": "5ec022cba7149dc31a7ad263d5e522f851c194ca5fef87cf232e17eb6cffa5a2",
+    "previous_hash": "0e84c940606ef722e03e9dfb4789e6d255f24cbb8903fd780043f864de756ec8",
+    "nonce": 12,
+    "hash": "0c1a732cc9d4557dfa485da4ce084f1e30a6f5fec3bd1b89be5dfd19ecc83694"
+  },
+  {
+    "index": 28,
+    "timestamp": "2026-09-17T10:19:36.185555Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640376.0461614
+    },
+    "merkle_root": "6c01dce99b8bebb00e03def791077f9e2e00bb7f38fd2589fa52f2c034c5d27e",
+    "previous_hash": "0c1a732cc9d4557dfa485da4ce084f1e30a6f5fec3bd1b89be5dfd19ecc83694",
+    "nonce": 1,
+    "hash": "03ebf9d9167d10697224c4518d9200df01a5b02592f39c88fa23d248a7dab5c0"
+  },
+  {
+    "index": 29,
+    "timestamp": "2026-09-17T10:19:40.279195Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640379.996836
+    },
+    "merkle_root": "438c8a030872fb1ebb3e94de03c7640457af347bacb971f2c5bc63f4583cd633",
+    "previous_hash": "03ebf9d9167d10697224c4518d9200df01a5b02592f39c88fa23d248a7dab5c0",
+    "nonce": 15,
+    "hash": "0d00d4bb0c1e741911127bac7a1f5aec4d7d03a85bcd1c3ab71d80bcf28dad46"
+  },
+  {
+    "index": 30,
+    "timestamp": "2026-09-17T10:27:12.534664Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 4444,
+      "pid": null,
+      "process": "Unknown",
+      "rule_name": "AURA_BLOCK_PORT_4444",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640832.4341075
+    },
+    "merkle_root": "9bfa55218ac88921e6de7c60e44e4cbaf7192e292786b4ee200c6de47ecfe6a6",
+    "previous_hash": "0d00d4bb0c1e741911127bac7a1f5aec4d7d03a85bcd1c3ab71d80bcf28dad46",
+    "nonce": 2,
+    "hash": "045d46ad92918c7fa402581144e0f517eefed9d3c6b96548774f838148a60978"
+  },
+  {
+    "index": 31,
+    "timestamp": "2026-09-17T10:27:52.638125Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 4444,
+      "pid": null,
+      "process": "Unknown",
+      "rule_name": "AURA_BLOCK_PORT_4444",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640872.5037076
+    },
+    "merkle_root": "3f8c9bfafcc8fa834f3cc4876005a7b5a47295ffc5ed28877ee7ed446d4d80b5",
+    "previous_hash": "045d46ad92918c7fa402581144e0f517eefed9d3c6b96548774f838148a60978",
+    "nonce": 9,
+    "hash": "026783016f54076c7b4e21bb9f189c4dfef2aac48d942be28db1aac3671fb44c"
+  },
+  {
+    "index": 32,
+    "timestamp": "2026-09-17T10:28:08.018983Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 4444,
+      "pid": null,
+      "process": "Unknown",
+      "rule_name": "AURA_BLOCK_PORT_4444",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640887.9286115
+    },
+    "merkle_root": "d656630666d951a91c208d1afd35beb9524d97e0e3c24b918d1714645f43f883",
+    "previous_hash": "026783016f54076c7b4e21bb9f189c4dfef2aac48d942be28db1aac3671fb44c",
+    "nonce": 38,
+    "hash": "0b12c2255db6eaa74aa7489edc1438643083a770b3125bf0454cd11ebc220b10"
+  },
+  {
+    "index": 33,
+    "timestamp": "2026-09-17T10:28:53.890239Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 4444,
+      "pid": null,
+      "process": "Unknown",
+      "rule_name": "AURA_BLOCK_PORT_4444",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789640933.7976418
+    },
+    "merkle_root": "54744a8f1902cce878c2ce7198939fe6d7ae4a13e48c537f32fd1a2d80eb6364",
+    "previous_hash": "0b12c2255db6eaa74aa7489edc1438643083a770b3125bf0454cd11ebc220b10",
+    "nonce": 22,
+    "hash": "00d0d347bd2f65e5cccf043f4fbad4676736160112e64a1b328305d8171876f9"
+  },
+  {
+    "index": 34,
+    "timestamp": "2026-09-17T10:29:54.096874Z",
+    "event_type": "PROCESS_TERMINATION",
+    "data": {
+      "port": 4444,
+      "pid": 5448,
+      "process_name": "python.exe",
+      "remediation": "SIGKILL_EXECUTION",
+      "timestamp": 1789640994.0868804
+    },
+    "merkle_root": "40ef9273df3dbd1aef280269d937ab8f11fd33000697c45bb62698964be8ae98",
+    "previous_hash": "00d0d347bd2f65e5cccf043f4fbad4676736160112e64a1b328305d8171876f9",
+    "nonce": 7,
+    "hash": "031d0ec1fea81d02f3bc002fbfbfe97ab2b7c5719bfc85a51a545351eff649a3"
+  },
+  {
+    "index": 35,
+    "timestamp": "2026-09-17T10:33:19.743961Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789641199.5707996
+    },
+    "merkle_root": "28182be9061ba8f036a1ec7a7d6cefaf8017d481d620ae6d5e60eb7ad1affd36",
+    "previous_hash": "031d0ec1fea81d02f3bc002fbfbfe97ab2b7c5719bfc85a51a545351eff649a3",
+    "nonce": 1,
+    "hash": "0efab1938ccef71282479f6ddfe49bcc4731f49e04d84cf9d2c3decf79521bfc"
+  },
+  {
+    "index": 36,
+    "timestamp": "2026-09-17T10:33:25.291702Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789641205.0393238
+    },
+    "merkle_root": "864cd2ce75e18c04a620e4a04b86c48f2d17cfd13ba3e7930376d9130b3200b2",
+    "previous_hash": "0efab1938ccef71282479f6ddfe49bcc4731f49e04d84cf9d2c3decf79521bfc",
+    "nonce": 20,
+    "hash": "0119f636702c2cfd764839939d21f8a775a2bde05c30339fed3636d3b5456b68"
+  },
+  {
+    "index": 37,
+    "timestamp": "2026-09-17T10:33:30.070572Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789641209.76923
+    },
+    "merkle_root": "be1a36cff5f8ccf82664bf52d68b85cf9fece4aaeba22f113224d87c8392923c",
+    "previous_hash": "0119f636702c2cfd764839939d21f8a775a2bde05c30339fed3636d3b5456b68",
+    "nonce": 6,
+    "hash": "03b80d4139f804043dcd31b02527b4cdbfb853cd910478df84e200307d7364e1"
+  },
+  {
+    "index": 38,
+    "timestamp": "2026-09-17T10:33:39.069646Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789641218.8393798
+    },
+    "merkle_root": "1b6abfd361990f334a0d20c2c914171a3562bf09096309137adbc6a2fbe928e4",
+    "previous_hash": "03b80d4139f804043dcd31b02527b4cdbfb853cd910478df84e200307d7364e1",
+    "nonce": 19,
+    "hash": "087af5b6f4bbc01e3f131db8ab414439a011a9e853ecb75b24a673b3cc4fcb0e"
+  },
+  {
+    "index": 39,
+    "timestamp": "2026-09-17T10:33:39.342142Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789641218.8393798
+    },
+    "merkle_root": "04169624067cc10ab43780c5716162062ef09b3b7492bc23723519c49f3e53dc",
+    "previous_hash": "087af5b6f4bbc01e3f131db8ab414439a011a9e853ecb75b24a673b3cc4fcb0e",
+    "nonce": 8,
+    "hash": "09828a317b1a96ce063dfd3bfa4a85f37092d95317dc8c2b148018db5d9fea00"
+  },
+  {
+    "index": 40,
+    "timestamp": "2026-09-17T10:33:39.593005Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "service": "MS-RPC Remote Endpoint Mapper",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_135",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789641218.8393798
+    },
+    "merkle_root": "1b6abfd361990f334a0d20c2c914171a3562bf09096309137adbc6a2fbe928e4",
+    "previous_hash": "09828a317b1a96ce063dfd3bfa4a85f37092d95317dc8c2b148018db5d9fea00",
+    "nonce": 19,
+    "hash": "0035b9a828fed0359f370427b6ea7743f515201eafc2d6d9286b51276cb93cfe"
+  },
+  {
+    "index": 41,
+    "timestamp": "2026-09-17T10:33:39.754571Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "service": "NetBIOS Session Spoofing",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_139",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789641218.8393798
+    },
+    "merkle_root": "10183818c060c3074fcfef9a0c2ddc4b093260961d99d82206110df19e7d3c12",
+    "previous_hash": "0035b9a828fed0359f370427b6ea7743f515201eafc2d6d9286b51276cb93cfe",
+    "nonce": 5,
+    "hash": "0c9e59c2c7d18b3b74a3baf0ab941b2ba8b3a33d756142adb991301dfe2e13c3"
+  },
+  {
+    "index": 42,
+    "timestamp": "2026-09-17T10:33:39.874718Z",
+    "event_type": "DANGER_PORT_SHIELDED",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "service": "SMBv1/v2 Lateral Propagation",
+      "rule_name": "AURA_BLOCK_DANGER_PORT_445",
+      "method": "FIREWALL_DROP",
+      "timestamp": 1789641218.8393798
+    },
+    "merkle_root": "04169624067cc10ab43780c5716162062ef09b3b7492bc23723519c49f3e53dc",
+    "previous_hash": "0c9e59c2c7d18b3b74a3baf0ab941b2ba8b3a33d756142adb991301dfe2e13c3",
+    "nonce": 5,
+    "hash": "00e3f0372ffefb04eefefd2c590414d4a5c732a632f882712b4300563a72a964"
+  },
+  {
+    "index": 43,
+    "timestamp": "2026-09-17T10:34:20.919124Z",
+    "event_type": "PROCESS_TERMINATION",
+    "data": {
+      "port": 4444,
+      "pid": 22124,
+      "process_name": "python.exe",
+      "remediation": "SIGKILL_EXECUTION",
+      "timestamp": 1789641260.9031045
+    },
+    "merkle_root": "daca9ee0d6e64d381f4819b7c8bf527390c421385cb6a3be79064c292c712b47",
+    "previous_hash": "00e3f0372ffefb04eefefd2c590414d4a5c732a632f882712b4300563a72a964",
+    "nonce": 0,
+    "hash": "038ecfc02c71bb04c52e89c74a75825bea37e4347e800cafd78bbc9fb1aa1813"
+  },
+  {
+    "index": 44,
+    "timestamp": "2026-09-17T11:24:12.165197Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 445,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_445",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789644251.9283423
+    },
+    "merkle_root": "81cdc276aa9478ee9ac0df2c4224941f9b453ce29fc8d8d00381485d50aa68bb",
+    "previous_hash": "038ecfc02c71bb04c52e89c74a75825bea37e4347e800cafd78bbc9fb1aa1813",
+    "nonce": 23,
+    "hash": "0cb3c970899c0ed4e269ab1b411b63128f8bd96d995b68b9a6aeef5d904eb3b8"
+  },
+  {
+    "index": 45,
+    "timestamp": "2026-09-17T11:24:16.772375Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 135,
+      "pid": 1936,
+      "process": "svchost.exe",
+      "rule_name": "AURA_BLOCK_PORT_135",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789644256.4768448
+    },
+    "merkle_root": "bbb6fa70f503cac4d5fe855d3bfc58645c642c1c4eaabc4edac700dc70a328a1",
+    "previous_hash": "0cb3c970899c0ed4e269ab1b411b63128f8bd96d995b68b9a6aeef5d904eb3b8",
+    "nonce": 35,
+    "hash": "0f58d3bc8d05d5dac515b9c332e39385ba502f7bbd0de9ca4bf8faff956e3174"
+  },
+  {
+    "index": 46,
+    "timestamp": "2026-09-17T11:24:21.267258Z",
+    "event_type": "PORT_REMEDIATION",
+    "data": {
+      "port": 139,
+      "pid": 4,
+      "process": "System",
+      "rule_name": "AURA_BLOCK_PORT_139",
+      "method": "FIREWALL_INBOUND_BLOCK",
+      "timestamp": 1789644260.9738185
+    },
+    "merkle_root": "fa9e28a9638b0939fc20de429c44effd13c5bf8f5b87fa5cdd1aba04d807cd0f",
+    "previous_hash": "0f58d3bc8d05d5dac515b9c332e39385ba502f7bbd0de9ca4bf8faff956e3174",
+    "nonce": 2,
+    "hash": "0f1e2d8f80cf58faed08bf7b9d62e6e801e59c650f23b247dc3cd19d6ae71734"
   }
 ]

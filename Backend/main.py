@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List, Literal, Optional
 import json
 import sys
+import subprocess
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -60,14 +61,16 @@ app = FastAPI(title="AURA SENTINEL API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 @app.get("/")
+@app.get("/api")
+@app.get("/api/health")
 def home():
-    return{
+    return {
         "status": "Online",
         "system": "AURA SENTINEL BACKEND"
     }
@@ -132,6 +135,286 @@ def get_provesses():
         "processes": processes[:10],
     }
 
+ADVANCED_PORT_THREAT_CATALOG = {
+    445: {
+        "threat_level": "CRITICAL",
+        "service_name": "SMBv1/v2 File Sharing",
+        "threat_title": "Ransomware Lateral Propagation (EternalBlue / WannaCry)",
+        "cve_id": "CVE-2017-0144 / MS17-010",
+        "cvss_score": 9.8,
+        "mitre_technique": "T1021.002 - SMB/Windows Admin Shares",
+        "attack_vector": "Remote unauthenticated attacker injects malformed SMB buffers over local network to achieve arbitrary code execution with NT AUTHORITY\\SYSTEM privileges.",
+        "potential_impact": "Total ransomware file encryption & lateral infection of entire campus subnet.",
+        "remediation": "Block inbound port 445 on public/Wi-Fi adapters immediately. Enforce SMB signing & disable legacy SMBv1.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_SMB_445" dir=in action=block protocol=TCP localport=445',
+        "is_noise": False,
+    },
+    135: {
+        "threat_level": "HIGH",
+        "service_name": "MS-RPC Endpoint Mapper",
+        "threat_title": "Remote DCOM / RPC Deserialization Vector",
+        "cve_id": "CVE-2022-26809 / MS-RPC RCE",
+        "cvss_score": 8.8,
+        "mitre_technique": "T1021.003 - Distributed Component Object Model (DCOM)",
+        "attack_vector": "Adversaries probe RPC endpoint mapper to enumerate active COM services and trigger unauthenticated remote memory corruption.",
+        "potential_impact": "Lateral privilege escalation and domain host compromise.",
+        "remediation": "Restrict TCP port 135 to trusted domain controllers; apply Windows Defender Firewall RPC ingress filters.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_RPC_135" dir=in action=block protocol=TCP localport=135',
+        "is_noise": False,
+    },
+    139: {
+        "threat_level": "HIGH",
+        "service_name": "NetBIOS Session Service",
+        "threat_title": "NetBIOS Name Service Poisoning (Responder Attack)",
+        "cve_id": "CWE-200 / MITRE T1557.001",
+        "cvss_score": 7.5,
+        "mitre_technique": "T1557.001 - LLMNR/NBT-NS Poisoning",
+        "attack_vector": "Adversary listens for broadcast NetBIOS queries and responds with rogue authentication challenges to capture hashes.",
+        "potential_impact": "NTLMv2 password hash theft and offline cracking.",
+        "remediation": "Disable NetBIOS over TCP/IP in network adapter IPv4 properties.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_NETBIOS_139" dir=in action=block protocol=TCP localport=139',
+        "is_noise": False,
+    },
+    3389: {
+        "threat_level": "CRITICAL",
+        "service_name": "RDP Remote Desktop",
+        "threat_title": "RDP Pre-Auth Remote Execution (BlueKeep)",
+        "cve_id": "CVE-2019-0708 / BlueKeep",
+        "cvss_score": 9.8,
+        "mitre_technique": "T1021.001 - Remote Desktop Protocol",
+        "attack_vector": "Crafted channel requests over port 3389 enable pre-authentication kernel memory corruption without user credentials.",
+        "potential_impact": "Complete remote GUI desktop takeover and stealth rootkit installation.",
+        "remediation": "Enforce Network Level Authentication (NLA), change default port, and require VPN gateway tunnel.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_RDP_3389" dir=in action=block protocol=TCP localport=3389',
+        "is_noise": False,
+    },
+    23: {
+        "threat_level": "CRITICAL",
+        "service_name": "Telnet Terminal",
+        "threat_title": "Cleartext Authentication & Keystroke Sniffing",
+        "cve_id": "CWE-319 - Cleartext Transmission",
+        "cvss_score": 9.0,
+        "mitre_technique": "T1040 - Network Sniffing",
+        "attack_vector": "Every administrator keystroke, credential, and command is broadcast in cleartext ASCII across the network.",
+        "potential_impact": "Instant password interception via passive packet sniffers on shared Wi-Fi.",
+        "remediation": "Disable Telnet server service immediately. Transition to OpenSSH with ed25519 key authentication.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_TELNET_23" dir=in action=block protocol=TCP localport=23',
+        "is_noise": False,
+    },
+    21: {
+        "threat_level": "HIGH",
+        "service_name": "FTP Plaintext Daemon",
+        "threat_title": "Cleartext File Transfer & Anonymous Write Vector",
+        "cve_id": "CWE-319 / FTP Plaintext Auth",
+        "cvss_score": 7.8,
+        "mitre_technique": "T1552 - Unsecured Credentials",
+        "attack_vector": "Cleartext authentication permits packet interception; frequently coupled with anonymous upload directories for web shells.",
+        "potential_impact": "Confidential document exfiltration and staging malicious web payloads.",
+        "remediation": "Migrate to SFTP (port 22) or FTPS with enforced TLS 1.3 encryption.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_FTP_21" dir=in action=block protocol=TCP localport=21',
+        "is_noise": False,
+    },
+    6379: {
+        "threat_level": "CRITICAL",
+        "service_name": "Redis In-Memory DB",
+        "threat_title": "Unauthenticated Redis Database RCE & Key Injection",
+        "cve_id": "CVE-2022-0543 / Redis Sandbox Escape",
+        "cvss_score": 9.8,
+        "mitre_technique": "T1190 - Exploit Public-Facing Application",
+        "attack_vector": "Redis bound to external IP without password auth allows adversaries to write unauthorized SSH keys directly to root filesystem.",
+        "potential_impact": "Direct root server takeover and mass cache data extraction.",
+        "remediation": "Bind Redis strictly to 127.0.0.1 and enable requirepass authentication in redis.conf.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_REDIS_6379" dir=in action=block protocol=TCP localport=6379',
+        "is_noise": False,
+    },
+    27017: {
+        "threat_level": "HIGH",
+        "service_name": "MongoDB NoSQL DB",
+        "threat_title": "Unauthenticated NoSQL Database Exposure",
+        "cve_id": "CWE-306 - Missing Authentication",
+        "cvss_score": 8.6,
+        "mitre_technique": "T1530 - Data from Database Storage",
+        "attack_vector": "Exposed MongoDB instance allowing unauthenticated cluster commands to dump sensitive collections or wipe databases.",
+        "potential_impact": "Mass student/enterprise PII exfiltration and extortion ransomware.",
+        "remediation": "Enable security.authorization in mongod.cfg and bind IP strictly to 127.0.0.1.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_MONGO_27017" dir=in action=block protocol=TCP localport=27017',
+        "is_noise": False,
+    },
+    5900: {
+        "threat_level": "HIGH",
+        "service_name": "VNC Desktop Sharing",
+        "threat_title": "VNC Weak DES Authentication & Screen Spying",
+        "cve_id": "CWE-287 - Improper Authentication",
+        "cvss_score": 8.0,
+        "mitre_technique": "T1021.005 - VNC Protocol",
+        "attack_vector": "Legacy 8-character DES password scheme susceptible to rapid brute-forcing and unencrypted screen stream sniffing.",
+        "potential_impact": "Live screen monitoring, keystroke logging, and remote mouse hijacking.",
+        "remediation": "Tunnel VNC sessions exclusively over encrypted SSH tunnels or corporate VPNs.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_VNC_5900" dir=in action=block protocol=TCP localport=5900',
+        "is_noise": False,
+    },
+    4444: {
+        "threat_level": "CRITICAL",
+        "service_name": "Metasploit / Reverse TCP Shell",
+        "threat_title": "Active Reverse Shell / C2 Backdoor Listener",
+        "cve_id": "MITRE T1059 - Command and Scripting Interpreter",
+        "cvss_score": 9.9,
+        "mitre_technique": "T1059 / T1071 - Command & Control Ingress",
+        "attack_vector": "Rogue interactive reverse shell connection detected. Allows remote adversary to execute arbitrary system commands with host privileges.",
+        "potential_impact": "Complete host takeover, ransomware deployment, credential theft.",
+        "remediation": "Immediately terminate host PID and quarantine offending binary.",
+        "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_REVERSESHELL_4444" dir=in action=block protocol=TCP localport=4444',
+        "is_noise": False,
+    },
+}
+
+def classify_port_threat(port: int, host: str, process: str) -> dict:
+    """Classifies an open port into deep threat intelligence and detects benign ephemeral noise."""
+    # 1. Known high risk signatures catalog
+    if port in ADVANCED_PORT_THREAT_CATALOG:
+        return ADVANCED_PORT_THREAT_CATALOG[port]
+
+    # 2. Relational and key-value databases
+    if port in (3306, 5432, 1433, 1521):
+        db_names = {3306: "MySQL", 5432: "PostgreSQL", 1433: "MS SQL Server", 1521: "Oracle DB"}
+        svc = db_names.get(port, "Database")
+        is_loopback = host in ("127.0.0.1", "::1", "localhost")
+        return {
+            "threat_level": "MEDIUM" if is_loopback else "HIGH",
+            "service_name": f"{svc} Database",
+            "threat_title": f"{svc} Enterprise Database Listener",
+            "cve_id": "CWE-284 - Improper Access Control",
+            "cvss_score": 5.2 if is_loopback else 8.4,
+            "mitre_technique": "T1190 - Exploit Public-Facing Application",
+            "attack_vector": f"Active {svc} listener exposed. " + ("Bound to loopback." if is_loopback else "Vulnerable to remote password brute-forcing and SQL injection pivot from external network!"),
+            "potential_impact": "Database extraction, unauthorized record manipulation, data leakage.",
+            "remediation": "Enforce strong authentication, disable remote root, and apply firewall binding to 127.0.0.1.",
+            "firewall_cmd": f'netsh advfirewall firewall add rule name="AURA_BLOCK_{svc}_{port}" dir=in action=block protocol=TCP localport={port}',
+            "is_noise": False,
+        }
+
+    # 3. Web & Application daemons
+    if port == 80:
+        return {
+            "threat_level": "MEDIUM",
+            "service_name": "HTTP Web Server",
+            "threat_title": "Unencrypted HTTP Plaintext Protocol",
+            "cve_id": "CWE-319 - Cleartext Data Transport",
+            "cvss_score": 6.5,
+            "mitre_technique": "T1040 - Network Sniffing",
+            "attack_vector": "HTTP traffic is unencrypted. Attackers on shared campus Wi-Fi can capture session cookies and inject malicious payloads.",
+            "potential_impact": "Session hijacking and credential interception via MITM attacks.",
+            "remediation": "Upgrade all services to HTTPS (TLS 1.3 on port 443) and enforce HSTS headers.",
+            "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_HTTP_80" dir=in action=block protocol=TCP localport=80',
+            "is_noise": False,
+        }
+
+    if port == 22:
+        return {
+            "threat_level": "MEDIUM",
+            "service_name": "SSH Remote Terminal",
+            "threat_title": "Secure Shell Daemon Exposure",
+            "cve_id": "MITRE T1110.001 - Password Guessing",
+            "cvss_score": 6.2,
+            "mitre_technique": "T1021.004 - SSH Protocol",
+            "attack_vector": "Automated reconnaissance botnets continuously spray dictionary passwords against exposed port 22.",
+            "potential_impact": "Unauthorized terminal access if weak credentials exist.",
+            "remediation": "Disable password authentication, enforce SSH ed25519 keys, and activate fail2ban rate-limiting.",
+            "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_SSH_22" dir=in action=block protocol=TCP localport=22',
+            "is_noise": False,
+        }
+
+    if port in (3000, 5000, 8000, 8080, 8888, 9000):
+        return {
+            "threat_level": "MEDIUM",
+            "service_name": f"App/Dev Server (Port {port})",
+            "threat_title": "Development REST API / Staging Endpoint",
+            "cve_id": "CWE-215 - Info Exposure via Debug Interface",
+            "cvss_score": 5.8,
+            "mitre_technique": "T1046 - Network Service Scanning",
+            "attack_vector": "Application frameworks in development mode may leak stack traces, debug credentials, or internal REST APIs.",
+            "potential_impact": "Internal application logic leakage and backend environment compromise.",
+            "remediation": "Ensure debug mode is disabled and credentials are not hardcoded in development builds.",
+            "firewall_cmd": f'netsh advfirewall firewall add rule name="AURA_BLOCK_APP_{port}" dir=in action=block protocol=TCP localport={port}',
+            "is_noise": False,
+        }
+
+    if port == 443:
+        return {
+            "threat_level": "LOW",
+            "service_name": "HTTPS Encrypted Web",
+            "threat_title": "Encrypted Web TLS Endpoint",
+            "cve_id": "N/A (Encrypted Standard)",
+            "cvss_score": 2.1,
+            "mitre_technique": "T1071.001 - Web Protocols",
+            "attack_vector": "Standard encrypted transport. Low attack surface when patched with modern TLS ciphers.",
+            "potential_impact": "Minimal when certificates are valid.",
+            "remediation": "Ensure modern TLS 1.3 cipher suites and valid SSL certificate authority chains.",
+            "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_HTTPS_443" dir=in action=block protocol=TCP localport=443',
+            "is_noise": False,
+        }
+
+    if port == 5173:
+        return {
+            "threat_level": "LOW",
+            "service_name": "AURA SOC Command UI",
+            "threat_title": "AURA Sentinel Local Command Center",
+            "cve_id": "N/A (Authorized Management)",
+            "cvss_score": 1.5,
+            "mitre_technique": "Authorized Management",
+            "attack_vector": "Platform management user interface. Intended for local security operator access.",
+            "potential_impact": "Authorized operational interface.",
+            "remediation": "Operational service. Keep monitored.",
+            "firewall_cmd": 'netsh advfirewall firewall add rule name="AURA_BLOCK_UI_5173" dir=in action=block protocol=TCP localport=5173',
+            "is_noise": False,
+        }
+
+    # 4. Ephemeral & Low-value system background noise ("Bekar" ports)
+    proc_lower = (process or "").lower()
+    if port >= 49152 or ("svchost" in proc_lower and port > 1024) or ("system" in proc_lower and port > 10000):
+        return {
+            "threat_level": "NOISE",
+            "service_name": "Dynamic System RPC",
+            "threat_title": "Harmless Dynamic OS Loopback",
+            "cve_id": "N/A (Benign System Noise)",
+            "cvss_score": 0.0,
+            "mitre_technique": "Internal Windows RPC",
+            "attack_vector": "Dynamic high port allocated by Windows kernel for internal IPC. Zero inbound vulnerability from external networks.",
+            "potential_impact": "None. Harmless background OS noise.",
+            "remediation": "Automatically filtered from active threat calculations to maintain clean SOC telemetry.",
+            "firewall_cmd": f'netsh advfirewall firewall add rule name="AURA_BLOCK_NOISE_{port}" dir=in action=block protocol=TCP localport={port}',
+            "is_noise": True,
+        }
+
+    return {
+        "threat_level": "LOW",
+        "service_name": f"Daemon ({process or 'Socket'})",
+        "threat_title": f"Generic Local Daemon (Port {port})",
+        "cve_id": "Generic Socket",
+        "cvss_score": 3.2,
+        "mitre_technique": "T1046 - Network Scanning",
+        "attack_vector": f"Standard socket connection bound to {host}:{port}.",
+        "potential_impact": "Low. Continuous passive monitoring.",
+        "remediation": "Verify service necessity and enforce least-privilege host binding.",
+        "firewall_cmd": f'netsh advfirewall firewall add rule name="AURA_BLOCK_PORT_{port}" dir=in action=block protocol=TCP localport={port}',
+        "is_noise": False,
+    }
+
+# ==========================================
+# ACTIVE DEFENSE PORT REMEDIATION ENGINE (SIH26105)
+# ==========================================
+
+# Tracks ports actively mitigated/blocked by AURA Sentinel
+# Format: { port: { "method": str, "timestamp": float, "rule_name": str, "pid": int, "details": str } }
+MITIGATED_PORTS = {}
+DEMO_BACKDOOR_PROCESS = None
+
+class PortRemediationRequest(BaseModel):
+    port: int
+    pid: Optional[int] = None
+    process_name: Optional[str] = "Unknown"
+    action: str = "AUTO"  # "AUTO" | "FIREWALL_BLOCK" | "KILL_PROCESS" | "RESTORE" | "SPAWN_DEMO" | "KILL_DEMO"
+
 @app.get("/api/attack-surface")
 def get_attack_surface():
     connections = []
@@ -155,22 +438,492 @@ def get_attack_surface():
                 ):
                     pass
 
+            classification = classify_port_threat(conn.laddr.port, conn.laddr.ip, process_name)
+            is_mitigated = conn.laddr.port in MITIGATED_PORTS
+            mitigation_info = MITIGATED_PORTS.get(conn.laddr.port)
+
+            threat_lvl = "SHIELDED" if is_mitigated else classification["threat_level"]
+            cvss = 0.0 if is_mitigated else classification.get("cvss_score", 0.0)
+
             connections.append({
                 "port": conn.laddr.port,
                 "host": conn.laddr.ip,
                 "pid": conn.pid,
                 "process": process_name,
-                "status": "LISTENING",
+                "status": "SHIELDED" if is_mitigated else "LISTENING",
+                "threat_level": threat_lvl,
+                "service_name": classification["service_name"],
+                "threat_title": classification.get("threat_title", "Network Listener"),
+                "cve_id": classification.get("cve_id", "N/A"),
+                "cvss_score": cvss,
+                "mitre_technique": classification.get("mitre_technique", "N/A"),
+                "attack_vector": classification.get("attack_vector", classification.get("description", "")),
+                "potential_impact": classification.get("potential_impact", ""),
+                "description": classification.get("description", classification.get("attack_vector", "")),
+                "remediation": classification["remediation"],
+                "firewall_cmd": classification.get("firewall_cmd", ""),
+                "is_noise": False if is_mitigated else classification["is_noise"],
+                "is_mitigated": is_mitigated,
+                "mitigation_info": mitigation_info,
             })
 
         except (psutil.AccessDenied, OSError):
             continue
 
-    connections.sort(key=lambda item: item["port"])
+    # Severity priority order: CRITICAL (0) -> HIGH (1) -> MEDIUM (2) -> LOW (3) -> NOISE (4) -> SHIELDED (5)
+    severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "NOISE": 4, "SHIELDED": 5}
+    connections.sort(key=lambda c: (severity_order.get(c["threat_level"], 6), -c.get("cvss_score", 0), c["port"]))
+
+    threat_count = sum(1 for c in connections if c["threat_level"] in ("CRITICAL", "HIGH") and not c.get("is_mitigated"))
+    noise_count = sum(1 for c in connections if c["is_noise"])
+    mitigated_count = len(MITIGATED_PORTS)
+
+    # Calculate dynamic attack surface risk score (0-100)
+    risk_score = min(100, max(5, int(15 + (threat_count * 18) + (len(connections) - noise_count - mitigated_count) * 2)))
+
+    demo_running = bool(DEMO_BACKDOOR_PROCESS and DEMO_BACKDOOR_PROCESS.get("proc") and DEMO_BACKDOOR_PROCESS["proc"].poll() is None)
 
     return {
         "total_open_ports": len(connections),
+        "threat_ports_count": threat_count,
+        "noise_ports_count": noise_count,
+        "mitigated_ports_count": mitigated_count,
+        "monitored_ports_count": len(connections) - noise_count,
+        "attack_surface_risk_score": risk_score,
+        "demo_threat_active": demo_running,
         "ports": connections,
+    }
+
+@app.post("/api/attack-surface/remediate")
+def remediate_attack_surface_port(request: PortRemediationRequest):
+    global DEMO_BACKDOOR_PROCESS
+    port = request.port
+    pid = request.pid
+    proc_name = request.process_name or "Unknown"
+    action = request.action.upper()
+    now = time.time()
+    rule_name = f"AURA_BLOCK_PORT_{port}"
+
+    # 1. Spawn Demo Threat (Port 4444 Backdoor)
+    if action == "SPAWN_DEMO":
+        try:
+            MITIGATED_PORTS.pop(4444, None)
+            try:
+                subprocess.run('netsh advfirewall firewall delete rule name="AURA_BLOCK_PORT_4444"', shell=True, capture_output=True)
+            except Exception:
+                pass
+
+            if DEMO_BACKDOOR_PROCESS and DEMO_BACKDOOR_PROCESS.get("proc"):
+                try:
+                    DEMO_BACKDOOR_PROCESS["proc"].kill()
+                except Exception:
+                    pass
+            code = "import socket, time; s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); s.bind(('0.0.0.0', 4444)); s.listen(5); time.sleep(3600)"
+            proc = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            DEMO_BACKDOOR_PROCESS = {"proc": proc, "port": 4444, "pid": proc.pid}
+
+            db.log_event(
+                event_type="ATTACK_SURFACE",
+                severity="CRITICAL",
+                title="Simulated Reverse Shell Backdoor Spawned",
+                description=f"Rogue listener bound on port 4444 (PID {proc.pid}) for SIH demonstration.",
+                source="WARGAME_ENGINE"
+            )
+            return {
+                "status": "SPAWNED",
+                "port": 4444,
+                "pid": proc.pid,
+                "message": f"Simulated Rogue Backdoor spawned on Port 4444 (PID {proc.pid}). Live detection active!"
+            }
+        except Exception as e:
+            return {"status": "ERROR", "message": str(e)}
+
+    # 2. Restore / Unblock Port
+    if action == "RESTORE":
+        if port in MITIGATED_PORTS:
+            MITIGATED_PORTS.pop(port, None)
+        try:
+            subprocess.run(f'netsh advfirewall firewall delete rule name="{rule_name}"', shell=True, capture_output=True)
+        except Exception:
+            pass
+
+        # Mine unblock action to blockchain
+        blockchain_ledger.mine_block("PORT_RESTORED", {
+            "port": port,
+            "rule_name": rule_name,
+            "action": "RESTORE_INSPECTION",
+            "timestamp": now,
+        })
+        db.log_event(
+            event_type="DEFENSE",
+            severity="INFO",
+            title=f"Port {port} Shield Removed",
+            description=f"Port {port} perimeter block deleted. Sockets restored to standard telemetry.",
+            source="AURA_AUTONOMOUS"
+        )
+        return {"status": "RESTORED", "port": port, "message": f"Port {port} unblocked. Telemetry restored."}
+
+    # Auto-resolve PID if missing or 0
+    if not pid:
+        if DEMO_BACKDOOR_PROCESS and DEMO_BACKDOOR_PROCESS.get("port") == port:
+            pid = DEMO_BACKDOOR_PROCESS.get("pid")
+        else:
+            try:
+                for c in psutil.net_connections(kind="inet"):
+                    if c.laddr and c.laddr.port == port and c.pid:
+                        pid = c.pid
+                        break
+            except Exception:
+                pass
+
+    if pid and (not proc_name or proc_name == "Unknown"):
+        try:
+            proc_name = psutil.Process(pid).name()
+        except Exception:
+            pass
+
+    # 3. Kill Process (for user/application processes)
+    proc_lower = (proc_name or "").lower()
+    is_protected_kernel = (pid is not None and pid <= 4) or "system" in proc_lower or "svchost" in proc_lower or pid == os.getpid()
+
+    if action in ("KILL_PROCESS", "TERMINATE") and not is_protected_kernel and pid:
+        try:
+            p = psutil.Process(pid)
+            p_name = p.name()
+            p.terminate()
+            try:
+                p.wait(timeout=1.5)
+            except psutil.TimeoutExpired:
+                p.kill()
+
+            if DEMO_BACKDOOR_PROCESS and DEMO_BACKDOOR_PROCESS.get("pid") == pid:
+                DEMO_BACKDOOR_PROCESS = None
+
+            MITIGATED_PORTS.pop(port, None)
+
+            db.record_mitigation(
+                action_type="KILL_PROCESS",
+                target=f"Port {port} (PID {pid} - {p_name})",
+                details="Direct process termination executed by AURA Threat Remediation.",
+                operator="AURA_AUTONOMOUS",
+                status="TERMINATED"
+            )
+            blockchain_ledger.mine_block("PROCESS_TERMINATION", {
+                "port": port,
+                "pid": pid,
+                "process_name": p_name,
+                "remediation": "SIGKILL_EXECUTION",
+                "timestamp": now
+            })
+            db.log_event(
+                event_type="PROCESS",
+                severity="SUCCESS",
+                title=f"Rogue Process Terminated: {p_name}",
+                description=f"PID {pid} listening on port {port} has been killed.",
+                source="AURA_AUTONOMOUS"
+            )
+            return {
+                "status": "TERMINATED",
+                "port": port,
+                "pid": pid,
+                "method": "SIGKILL",
+                "message": f"Process '{p_name}' (PID {pid}) terminated successfully. Socket closed."
+            }
+        except Exception as e:
+            return {"status": "ERROR", "message": f"Process kill failed: {str(e)}"}
+
+    # 4. Host Firewall Perimeter Block (for Kernel/System services like 445 SMB, 135 RPC, 139 NetBIOS, or AUTO/TERMINATE)
+    firewall_cmd = f'netsh advfirewall firewall add rule name="{rule_name}" dir=in action=block protocol=TCP localport={port}'
+    fw_executed = False
+    fw_output = ""
+    try:
+        res = subprocess.run(firewall_cmd, shell=True, capture_output=True, text=True)
+        fw_output = res.stdout.strip() or res.stderr.strip()
+        if res.returncode == 0:
+            fw_executed = True
+    except Exception as e:
+        fw_output = str(e)
+
+    MITIGATED_PORTS[port] = {
+        "timestamp": now,
+        "rule_name": rule_name,
+        "pid": pid,
+        "process": proc_name,
+        "method": "FIREWALL_INBOUND_BLOCK",
+        "elevation_confirmed": fw_executed,
+        "firewall_cmd": firewall_cmd,
+    }
+
+    db.record_mitigation(
+        action_type="FIREWALL_BLOCK",
+        target=f"Port {port} ({proc_name})",
+        details=f"Inbound TCP block deployed. Target was {'Windows Kernel PID 4 (BSOD Protected)' if is_protected_kernel else 'Application Service'}.",
+        operator="AURA_AUTONOMOUS",
+        status="BLOCKED"
+    )
+    blockchain_ledger.mine_block("PORT_REMEDIATION", {
+        "port": port,
+        "pid": pid,
+        "process": proc_name,
+        "rule_name": rule_name,
+        "method": "FIREWALL_INBOUND_BLOCK",
+        "timestamp": now
+    })
+    db.log_event(
+        event_type="SHIELD",
+        severity="SUCCESS",
+        title=f"Threat Neutralized: Port {port} Blocked",
+        description=f"Inbound traffic blocked for Port {port} ({proc_name}). Cryptographic audit block sealed.",
+        source="AURA_AUTONOMOUS"
+    )
+
+    reason = "Target is Windows NT Kernel (System/RPC). Direct SIGKILL safely redirected to Inbound Host Firewall termination to prevent OS crash (BSOD)." if is_protected_kernel else "Inbound perimeter block rule deployed."
+
+    return {
+        "status": "TERMINATED" if action in ("TERMINATE", "KILL_PROCESS") else "NEUTRALIZED",
+        "port": port,
+        "pid": pid,
+        "method": "PERIMETER_TERMINATION" if action in ("TERMINATE", "KILL_PROCESS") else "FIREWALL_INBOUND_BLOCK",
+        "rule_name": rule_name,
+        "firewall_cmd": firewall_cmd,
+        "elevation_confirmed": fw_executed,
+        "reason": reason,
+        "message": f"Threat on Port {port} successfully {'TERMINATED' if action in ('TERMINATE', 'KILL_PROCESS') else 'NEUTRALIZED'}. Inbound socket blocked & logged to Blockchain Ledger."
+    }
+
+# ==============================================================================
+# DANGER PORT TERMINATION ENGINE (AUTONOMOUS KILL & SHIELD)
+# ==============================================================================
+
+class TerminateDangerPortsRequest(BaseModel):
+    ports: Optional[List[int]] = None  # None = Scan & terminate all active danger ports
+    force_kill: Optional[bool] = False  # If True, aggressively kills application PIDs
+
+@app.post("/api/attack-surface/terminate-danger-ports")
+def terminate_danger_ports(request: Optional[TerminateDangerPortsRequest] = None):
+    """
+    Scans all listening sockets, detects active high/critical danger ports,
+    and terminates rogue processes or deploys host perimeter firewall rules safely.
+    """
+    global DEMO_BACKDOOR_PROCESS
+    now = time.time()
+    current_pid = os.getpid()
+
+    # List of known critical & high threat ports to eliminate
+    CRITICAL_DANGER_PORTS = {
+        4444: "Metasploit / Reverse TCP Shell",
+        1337: "Elite Backdoor Listener",
+        31337: "Back Orifice Trojan C2",
+        6667: "IRC Botnet C2 Channel",
+        5555: "Exposed Rogue ADB Daemon",
+        23: "Cleartext Telnet Terminal",
+        21: "Plaintext FTP Daemon",
+        445: "SMBv1/v2 Lateral Propagation",
+        135: "MS-RPC Remote Endpoint Mapper",
+        139: "NetBIOS Session Spoofing",
+        3389: "RDP Remote Desktop Exposure",
+        5900: "VNC Desktop Hijack Listener",
+        6379: "Unauthenticated Redis Database",
+        27017: "Exposed MongoDB Database",
+    }
+
+    # AURA internal protected ports that must never be terminated
+    SAFE_SYSTEM_PORTS = {8000, 5173, 5174}
+
+    target_ports_filter = set(request.ports) if (request and request.ports) else None
+
+    terminated_list = []
+    shielded_list = []
+    skipped_list = []
+    scanned_count = 0
+
+    try:
+        connections = psutil.net_connections(kind="inet")
+    except Exception as e:
+        return {"status": "ERROR", "message": f"Failed to inspect network sockets: {str(e)}"}
+
+    for conn in connections:
+        if conn.status != psutil.CONN_LISTEN or not conn.laddr:
+            continue
+
+        port = conn.laddr.port
+        pid = conn.pid
+        scanned_count += 1
+
+        # Skip safe AURA internal ports
+        if port in SAFE_SYSTEM_PORTS:
+            continue
+
+        # Check if port matches danger signatures
+        is_in_danger_catalog = port in CRITICAL_DANGER_PORTS or port in ADVANCED_PORT_THREAT_CATALOG
+        if target_ports_filter is not None:
+            should_terminate = port in target_ports_filter
+        else:
+            should_terminate = is_in_danger_catalog
+
+        if not should_terminate:
+            continue
+
+        service_info = CRITICAL_DANGER_PORTS.get(
+            port, 
+            ADVANCED_PORT_THREAT_CATALOG.get(port, {}).get("service_name", f"Danger Port {port}")
+        )
+
+        proc_name = "Unknown"
+        if pid:
+            try:
+                proc_name = psutil.Process(pid).name()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                proc_name = "Unknown"
+
+        proc_lower = proc_name.lower()
+        is_protected_kernel = (
+            pid is None 
+            or pid <= 4 
+            or pid == current_pid 
+            or "system" in proc_lower 
+            or "svchost" in proc_lower
+        )
+
+        # -------------------------------------------------------------
+        # Action 1: Kill User-Space Rogue Process (e.g. Backdoor, Reverse Shell)
+        # -------------------------------------------------------------
+        if not is_protected_kernel and pid:
+            try:
+                proc = psutil.Process(pid)
+                actual_name = proc.name()
+                proc.terminate()
+                try:
+                    proc.wait(timeout=1.5)
+                except psutil.TimeoutExpired:
+                    proc.kill()
+
+                # Clean up demo backdoor reference if matched
+                if DEMO_BACKDOOR_PROCESS and DEMO_BACKDOOR_PROCESS.get("pid") == pid:
+                    DEMO_BACKDOOR_PROCESS = None
+
+                # Log to SQLite DB
+                try:
+                    db.record_mitigation(
+                        action_type="KILL_PROCESS",
+                        target=f"Port {port} (PID {pid} - {actual_name})",
+                        details=f"Terminated rogue process bound to danger port {port} ({service_info}).",
+                        operator="AURA_AUTONOMOUS_HUNTER",
+                        status="TERMINATED"
+                    )
+                    db.log_event(
+                        event_type="PROCESS",
+                        severity="SUCCESS",
+                        title=f"Danger Port Killed: :{port}",
+                        description=f"Process '{actual_name}' (PID {pid}) on danger port {port} was successfully killed.",
+                        source="DANGER_PORT_HUNTER"
+                    )
+                except Exception:
+                    pass
+
+                # Mine block into Blockchain Ledger
+                try:
+                    blockchain_ledger.mine_block("DANGER_PORT_TERMINATED", {
+                        "port": port,
+                        "pid": pid,
+                        "service": service_info,
+                        "process_name": actual_name,
+                        "method": "SIGKILL",
+                        "timestamp": now,
+                    })
+                except Exception:
+                    pass
+
+                terminated_list.append({
+                    "port": port,
+                    "pid": pid,
+                    "process_name": actual_name,
+                    "service": service_info,
+                    "action": "SIGKILL_TERMINATED",
+                })
+                continue
+
+            except psutil.NoSuchProcess:
+                skipped_list.append({"port": port, "reason": "Process exited before SIGKILL"})
+                continue
+            except Exception as err:
+                skipped_list.append({"port": port, "pid": pid, "reason": f"Kill error: {str(err)}"})
+
+        # -------------------------------------------------------------
+        # Action 2: Protected System Service -> Inbound Firewall Shield
+        # -------------------------------------------------------------
+        rule_name = f"AURA_BLOCK_DANGER_PORT_{port}"
+        firewall_cmd = f'netsh advfirewall firewall add rule name="{rule_name}" dir=in action=block protocol=TCP localport={port}'
+        fw_success = False
+
+        try:
+            res = subprocess.run(firewall_cmd, shell=True, capture_output=True, text=True)
+            if res.returncode == 0:
+                fw_success = True
+        except Exception:
+            pass
+
+        MITIGATED_PORTS[port] = {
+            "timestamp": now,
+            "rule_name": rule_name,
+            "pid": pid,
+            "process": proc_name,
+            "method": "FIREWALL_INBOUND_BLOCK",
+            "elevation_confirmed": fw_success,
+            "firewall_cmd": firewall_cmd,
+        }
+
+        # Log to Database
+        try:
+            db.record_mitigation(
+                action_type="FIREWALL_BLOCK",
+                target=f"Port {port} ({proc_name})",
+                details=f"Inbound firewall block applied to danger port {port} ({service_info}). Direct SIGKILL bypassed to avoid OS crash.",
+                operator="AURA_AUTONOMOUS_HUNTER",
+                status="BLOCKED"
+            )
+            db.log_event(
+                event_type="SHIELD",
+                severity="SUCCESS",
+                title=f"Danger Port Shielded: :{port}",
+                description=f"Inbound firewall perimeter drop rule enforced for danger port {port} ({proc_name}).",
+                source="DANGER_PORT_HUNTER"
+            )
+        except Exception:
+            pass
+
+        # Mine block into Blockchain Ledger
+        try:
+            blockchain_ledger.mine_block("DANGER_PORT_SHIELDED", {
+                "port": port,
+                "pid": pid,
+                "service": service_info,
+                "rule_name": rule_name,
+                "method": "FIREWALL_DROP",
+                "timestamp": now,
+            })
+        except Exception:
+            pass
+
+        shielded_list.append({
+            "port": port,
+            "pid": pid,
+            "process_name": proc_name,
+            "service": service_info,
+            "action": "FIREWALL_RULE_APPLIED",
+            "rule_name": rule_name,
+        })
+
+    return {
+        "status": "COMPLETED",
+        "total_listening_scanned": scanned_count,
+        "terminated_count": len(terminated_list),
+        "shielded_count": len(shielded_list),
+        "terminated_processes": terminated_list,
+        "shielded_services": shielded_list,
+        "skipped": skipped_list,
+        "timestamp": now,
+        "message": f"Remediation finished: {len(terminated_list)} rogue processes terminated, {len(shielded_list)} system ports shielded via Firewall."
     }
 
 @app.get("/api/risk-intelligence")
@@ -1012,6 +1765,8 @@ def delete_file_broad(request: FileActionRequest):
 
 def generate_vision_frames():
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     if not cap.isOpened():
         print("Camera device not accessible")
         return
@@ -1594,6 +2349,279 @@ def restore_blockchain_consensus():
         **result,
         "integrity": integrity,
         "ledger": blockchain_ledger.get_ledger_summary(),
+    }
+
+
+# ==========================================
+# MODULE 11: FINANCIAL INTELLIGENCE & MARKET ANALYSIS (SIH26105)
+# ==========================================
+
+from services.market_data import market_data_service
+from services.financial_engine import financial_engine
+from Database.finance_models import (
+    init_finance_db,
+    SessionLocal,
+    FinancialProfile,
+    MarketSnapshot,
+    AnalysisResult,
+    SimulationResult,
+)
+
+# Initialize SQLAlchemy tables on startup
+try:
+    init_finance_db()
+except Exception as e:
+    print(f"Warning: Finance DB initialization exception: {e}")
+
+
+class FinanceProfileRequest(BaseModel):
+    investment_amount: float
+    duration_years: int
+    risk_profile: Literal["conservative", "moderate", "aggressive"]
+    liquidity_requirement: Literal["low", "medium", "high"]
+    goal: Literal["capital_preservation", "balanced_growth", "growth"]
+
+
+class FinanceAnalyzeRequest(BaseModel):
+    profile_id: Optional[int] = None
+    investment_amount: Optional[float] = 50000.0
+    duration_years: Optional[int] = 3
+    risk_profile: Optional[Literal["conservative", "moderate", "aggressive"]] = "moderate"
+    liquidity_requirement: Optional[Literal["low", "medium", "high"]] = "medium"
+    goal: Optional[Literal["capital_preservation", "balanced_growth", "growth"]] = "balanced_growth"
+
+
+class FinanceSimulateRequest(BaseModel):
+    initial_amount: float
+    duration_years: int
+    selected_category: Optional[str] = "government_backed"
+    historical_volatility: Optional[float] = None
+    scenario_type: Optional[str] = "all"
+
+
+@app.get("/api/finance/health")
+def get_finance_health():
+    """Reports market data provider status, mock/live mode, sync timestamp, and API availability."""
+    provider_status = market_data_service.get_provider_status()
+    db_status = "CONNECTED"
+    try:
+        sess = SessionLocal()
+        sess.execute(__import__("sqlalchemy").text("SELECT 1"))
+        sess.close()
+    except Exception as e:
+        db_status = f"ERROR: {str(e)}"
+
+    return {
+        **provider_status,
+        "database_status": db_status,
+        "service": "AURA Financial Intelligence & Market Analysis",
+        "compliance_mode": "DECISION_SUPPORT_ONLY",
+    }
+
+
+@app.post("/api/finance/profile")
+def save_finance_profile(request: FinanceProfileRequest):
+    """Validates user financial preferences, persists to SQLAlchemy database, and returns normalized profile."""
+    if request.investment_amount <= 0:
+        return {"status": "ERROR", "message": "Investment amount must be a positive number greater than zero."}
+    if request.duration_years < 1 or request.duration_years > 50:
+        return {"status": "ERROR", "message": "Investment duration must be between 1 and 50 years."}
+
+    session = SessionLocal()
+    try:
+        profile = FinancialProfile(
+            investment_amount=float(request.investment_amount),
+            duration_years=int(request.duration_years),
+            risk_profile=request.risk_profile.lower(),
+            liquidity_requirement=request.liquidity_requirement.lower(),
+            goal=request.goal.lower(),
+        )
+        session.add(profile)
+        session.commit()
+        session.refresh(profile)
+        profile_data = profile.to_dict()
+
+        # Audit log in AURA core database
+        try:
+            db.log_event(
+                event_type="FINANCE",
+                severity="INFO",
+                title="User Financial Profile Saved",
+                description=f"Profile #{profile.id} registered: ₹{profile.investment_amount:,.2f} ({profile.duration_years}y, {profile.risk_profile}).",
+                source="FINANCE_INTELLIGENCE"
+            )
+        except Exception:
+            pass
+
+        return {
+            "status": "SUCCESS",
+            "message": "Financial preferences normalized and persisted successfully.",
+            "profile": profile_data,
+        }
+    except Exception as e:
+        session.rollback()
+        return {"status": "ERROR", "message": f"Database persistence failed: {str(e)}"}
+    finally:
+        session.close()
+
+
+@app.get("/api/finance/market")
+def get_finance_market_snapshot():
+    """Returns structured snapshot of benchmark government securities vs market-linked instruments."""
+    snapshot = market_data_service.get_market_snapshot()
+    vol_data = market_data_service.get_market_volatility()
+    price_changes = market_data_service.get_price_change()
+    volume_data = market_data_service.get_volume_data()
+
+    # Persist snapshot to database
+    session = SessionLocal()
+    try:
+        record = MarketSnapshot(
+            provider=snapshot["metadata"]["data_source"],
+            is_mock=snapshot["metadata"]["is_mock"],
+            snapshot_json=json.dumps(snapshot),
+            volatility_index=float(snapshot["metadata"]["volatility_index"]),
+        )
+        session.add(record)
+        session.commit()
+    except Exception:
+        session.rollback()
+    finally:
+        session.close()
+
+    return {
+        "status": "SUCCESS",
+        **snapshot,
+        "volatility_indicators": vol_data,
+        "price_changes": price_changes,
+        "liquidity_indicators": volume_data,
+    }
+
+
+@app.post("/api/finance/compare")
+def compare_finance_categories(request: Optional[FinanceAnalyzeRequest] = None):
+    """
+    Compares Government Securities vs Market-Linked categories across risk, volatility, liquidity, and drawdown.
+    Does not declare an automatic winner; highlights key trade-offs objectively.
+    """
+    snapshot = market_data_service.get_market_snapshot()
+    gov = snapshot["government_category"]
+    mkt = snapshot["market_category"]
+
+    return {
+        "status": "SUCCESS",
+        "data_source": snapshot["metadata"]["data_source"],
+        "is_mock": snapshot["metadata"]["is_mock"],
+        "timestamp": snapshot["metadata"]["timestamp"],
+        "comparison_title": "Government Securities vs. Market-Linked Instruments Comparison",
+        "government_category": {
+            "category_name": gov["category_name"],
+            "description": gov["description"],
+            "risk_profile": gov["risk_rating"],
+            "credit_rating": gov["credit_rating"],
+            "annualized_volatility": f"{gov['annualized_volatility_pct']}% (Low)",
+            "benchmark_yield": f"{gov['benchmark_yield_pct']}% annualized",
+            "liquidity_rating": gov["liquidity_rating"],
+            "stability_score": gov["stability_score"],
+            "max_historical_drawdown": f"{gov['max_historical_drawdown_pct']}%",
+            "instruments": gov["instruments"],
+        },
+        "market_category": {
+            "category_name": mkt["category_name"],
+            "description": mkt["description"],
+            "risk_profile": mkt["risk_rating"],
+            "credit_rating": mkt["credit_rating"],
+            "annualized_volatility": f"{mkt['annualized_volatility_pct']}% (Elevated)",
+            "benchmark_return": f"{mkt['benchmark_annualized_return_pct']}% historical CAGR",
+            "liquidity_rating": mkt["liquidity_rating"],
+            "stability_score": mkt["stability_score"],
+            "max_historical_drawdown": f"{mkt['max_historical_drawdown_pct']}%",
+            "instruments": mkt["instruments"],
+        },
+        "analytical_summary": (
+            "Government securities provide sovereign principal preservation with low volatility (~2.5%) "
+            "and minimal historical drawdowns. Market-linked instruments offer cyclical appreciation potential "
+            "accompanied by elevated volatility (~15.7%) and historical drawdowns (~28.4%). "
+            "Decision depends on time horizon and risk tolerance."
+        ),
+        "compliance_disclaimer": "Historical performance does not guarantee future results. Final allocation decision remains with the user.",
+    }
+
+
+@app.post("/api/finance/analyze")
+def analyze_finance_suitability(request: FinanceAnalyzeRequest):
+    """
+    Performs transparent suitability evaluation based on configurable weights:
+    Risk Match (45%) + Stability (30%) + Liquidity (25%).
+    Generates dynamic AI explanation derived from computed metrics.
+    """
+    profile_dict = request.dict()
+    analysis = financial_engine.calculate_suitability(profile_dict)
+
+    # Persist analysis result to SQLAlchemy
+    session = SessionLocal()
+    try:
+        record = AnalysisResult(
+            profile_id=request.profile_id,
+            category="GOV_VS_MARKET_SUITABILITY",
+            suitability_score=float(analysis["government_category"]["suitability_score"]),
+            risk_match=float(analysis["government_category"]["risk_match"]),
+            stability_score=float(analysis["government_category"]["stability_score"]),
+            liquidity_score=float(analysis["government_category"]["liquidity_score"]),
+            explanation=analysis["analytical_explanation"],
+            breakdown_json=json.dumps(analysis["weights"]),
+        )
+        session.add(record)
+        session.commit()
+    except Exception:
+        session.rollback()
+    finally:
+        session.close()
+
+    return {
+        "status": "SUCCESS",
+        "profile_evaluated": profile_dict,
+        **analysis,
+    }
+
+
+@app.post("/api/finance/simulate")
+def simulate_finance_scenarios(request: FinanceSimulateRequest):
+    """
+    Executes scenario simulations (Conservative, Base, High-Volatility) over the specified time horizon.
+    Clearly labeled with ILLUSTRATIVE SIMULATION badge.
+    """
+    if request.initial_amount <= 0:
+        return {"status": "ERROR", "message": "Initial investment amount must be greater than zero."}
+    if request.duration_years < 1 or request.duration_years > 40:
+        return {"status": "ERROR", "message": "Simulation duration must be between 1 and 40 years."}
+
+    sim = financial_engine.simulate_scenarios(
+        initial_amount=request.initial_amount,
+        duration_years=request.duration_years,
+        category=request.selected_category or "government_backed",
+        historical_volatility=request.historical_volatility,
+    )
+
+    # Persist simulation to database
+    session = SessionLocal()
+    try:
+        rec = SimulationResult(
+            initial_amount=float(request.initial_amount),
+            duration_years=int(request.duration_years),
+            category=request.selected_category or "government_backed",
+            simulation_json=json.dumps(sim),
+        )
+        session.add(rec)
+        session.commit()
+    except Exception:
+        session.rollback()
+    finally:
+        session.close()
+
+    return {
+        "status": "SUCCESS",
+        **sim,
     }
 
 
