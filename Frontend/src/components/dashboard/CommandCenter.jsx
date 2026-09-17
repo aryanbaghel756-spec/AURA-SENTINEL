@@ -51,6 +51,11 @@ const MODULE_DETAILS = {
     desc: "Live camera-based YOLOv8 person detection stream running locally on your hardware.",
     tag: "YOLO FEED",
   },
+  "blockchain-ledger": {
+    badge: "IMMUTABLE AUDIT",
+    desc: "Cryptographic SHA-256 Merkle risk ledger & tamper-proof audit trail for SIH26105 compliance.",
+    tag: "BLOCKCHAIN",
+  },
 };
 
 export default function CommandCenter({ onOpenModule, onOpenPalette, onGenerateReport }) {

@@ -27,7 +27,7 @@ import BootScreen from "./components/auth/BootScreen";
 // Dashboard
 import CommandCenter from "./components/dashboard/CommandCenter";
 
-// 9 Intelligence Modules
+// 10 Intelligence Modules
 import SystemMonitoring from "./components/modules/SystemMonitoring";
 import AttackSurface from "./components/modules/AttackSurface";
 import RiskIntelligence from "./components/modules/RiskIntelligence";
@@ -37,6 +37,7 @@ import InvestmentOptimizer from "./components/modules/InvestmentOptimizer";
 import AIAssistant from "./components/modules/AIAssistant";
 import FileSecurity from "./components/modules/FileSecurity";
 import VisionIntelligence from "./components/modules/VisionIntelligence";
+import BlockchainLedger from "./components/modules/BlockchainLedger";
 
 export default function App() {
   const [activeModule, setActiveModule] = useState(null);
@@ -282,6 +283,7 @@ export default function App() {
             {activeModule === "aura-voice" && <AIAssistant onOpenModule={handleOpenModule} />}
             {activeModule === "file-security" && <FileSecurity />}
             {activeModule === "vision-intelligence" && <VisionIntelligence />}
+            {activeModule === "blockchain-ledger" && <BlockchainLedger />}
           </div>
         </div>
       ) : systemStarted ? (
@@ -332,7 +334,7 @@ export default function App() {
           {/* 4-Stage Operational Pipeline */}
           <PipelineSection />
 
-          {/* 9-Module Feature Showcase */}
+          {/* 10-Module Feature Showcase */}
           <ShowcaseSection onInitialize={handleOpenFaceAuth} />
 
           {/* Footer Branding */}

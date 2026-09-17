@@ -8,4 +8,5 @@ export const MODULE_REGISTRY = [
   { id: "aura-voice", number: "07", name: "AI Assistant", icon: "🎙" },
   { id: "file-security", number: "08", name: "File Security", icon: "▣" },
   { id: "vision-intelligence", number: "09", name: "Vision Intelligence", icon: "◎" },
+  { id: "blockchain-ledger", number: "10", name: "Blockchain Ledger", icon: "⛓" },
 ];

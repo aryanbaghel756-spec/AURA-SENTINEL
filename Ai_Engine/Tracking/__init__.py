@@ -5,5 +5,6 @@ YOLO vision centroid tracking and remote IP threat actor state tracking.
 
 from .vision_tracker import CentroidTracker
 from .actor_tracker import ThreatActorTracker
+from .presence_lock import PresenceAutoLockEngine
 
-__all__ = ["CentroidTracker", "ThreatActorTracker"]
+__all__ = ["CentroidTracker", "ThreatActorTracker", "PresenceAutoLockEngine"]

@@ -17,6 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from Database import db
+from blockchain_ledger import blockchain_ledger
 from Ai_Engine import (
     risk_scorer,
     FinancialExposureEngine,
@@ -24,12 +25,16 @@ from Ai_Engine import (
     ThreatDetector,
     CentroidTracker,
     ThreatActorTracker,
+    GestureController,
+    PresenceAutoLockEngine,
 )
 
 system_anomaly_detector = SystemAnomalyDetector(window_size=30)
 threat_detector = ThreatDetector()
 vision_tracker = CentroidTracker(max_disappeared=25, max_distance=90.0)
 threat_actor_tracker = ThreatActorTracker()
+gesture_controller = GestureController(enabled=True)
+presence_lock_engine = PresenceAutoLockEngine(grace_period_seconds=5, enabled=True)
 
 from send2trash import send2trash
 from dotenv import load_dotenv
@@ -382,12 +387,30 @@ def get_investment_optimizer():
 
 @app.post("/api/investment-optimizer/analyze")
 def analyze_investment(data: InvestmentInput):
-    return build_investment_response(
+    resp = build_investment_response(
         monthly_budget=data.monthly_budget,
         systems=data.systems,
         data_value=data.data_value,
         business_type=data.business_type,
     )
+    try:
+        rec_plan = resp.get("recommended_plan", {})
+        blockchain_ledger.mine_block(
+            event_type="INVESTMENT_OPTIMIZATION",
+            data={
+                "business_type": data.business_type,
+                "monthly_budget_inr": data.monthly_budget,
+                "systems_count": data.systems,
+                "data_value_inr": data.data_value,
+                "recommended_plan": rec_plan.get("name", "Custom Defense"),
+                "projected_risk_reduction_pct": rec_plan.get("risk_reduction", 0),
+                "expected_annual_savings_inr": rec_plan.get("savings", 0),
+                "rosi_roi_pct": rec_plan.get("rosi", 0),
+            },
+        )
+    except Exception as e:
+        print(f"Blockchain auto-mine error: {e}")
+    return resp
 
 
 # FILE 
@@ -651,6 +674,23 @@ def quarantine_files(request: FileActionRequest):
             results.append({"path": path, "status": "FAILED", "reason": str(error)})
 
     _save_quarantine_log(log_data)
+
+    # Cryptographically seal quarantine action in Blockchain ledger
+    quarantined_success = [r for r in results if r.get("status") == "QUARANTINED"]
+    if quarantined_success:
+        try:
+            blockchain_ledger.mine_block(
+                event_type="THREAT_QUARANTINE",
+                data={
+                    "quarantined_files_count": len(quarantined_success),
+                    "file_names": [Path(r["path"]).name for r in quarantined_success],
+                    "vault_target": QUARANTINE_FOLDER,
+                    "action": "AUTOMATED_CONTAINMENT_SEAL",
+                },
+            )
+        except Exception as e:
+            print(f"Blockchain quarantine log error: {e}")
+
     return {"results": results}
 
 @app.get("/api/file-security/quarantine/list")
@@ -982,6 +1022,10 @@ def generate_vision_frames():
             if not success:
                 break
 
+            # Flip horizontally for natural mirror feel
+            frame = cv2.flip(frame, 1)
+
+            # YOLO Person Detection
             results = yolo_model(frame, verbose=False, classes=[0]) #type: ignore
             rects = []
 
@@ -992,20 +1036,72 @@ def generate_vision_frames():
 
             # Centroid tracker update (AI Tracking Engine)
             tracked_entities = vision_tracker.update(rects)
+            operator_present = len(tracked_entities) > 0
 
+            # Update Presence & Auto-Lock
+            presence_info = presence_lock_engine.update(operator_present)
+            if presence_info.get("should_lock"):
+                try:
+                    db.log_event(
+                        event_type="ZERO_TRUST",
+                        severity="CRITICAL",
+                        title="Operator Absent - Zero Trust Lock",
+                        description=f"Operator absent for {presence_lock_engine.grace_period}s. Workstation secured.",
+                        source="VISION_INTELLIGENCE"
+                    )
+                except Exception:
+                    pass
+
+            # Hand Gesture & Mouse Automation Processing
+            if gesture_controller.enabled:
+                try:
+                    frame = gesture_controller.process_frame(frame)
+                    if gesture_controller.active_gesture not in ("NONE", "SEARCHING"):
+                        presence_lock_engine.last_seen_time = time.time()
+                except Exception:
+                    pass
+
+            # Draw bounding boxes & ID label
             for entity in tracked_entities:
                 x1, y1, x2, y2 = entity["bbox"]
                 obj_id = entity["id"]
                 dwell = entity["dwell_time"]
 
-                # Draw bounding box & ID label
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 200, 255), 2)
-                label = f"Target #{obj_id} [{dwell:.0f}s]"
-                cv2.putText(frame, label, (x1, y1 - 8),
+                label = f"Operator #{obj_id} [{dwell:.0f}s]"
+                cv2.putText(frame, label, (x1, max(20, y1 - 8)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 200, 255), 2)
 
-            cv2.putText(frame, f"AURA VISION | TARGETS TRACKED: {len(tracked_entities)}", (15, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
+            h, w, _ = frame.shape
+
+            # Top HUD Bar
+            cv2.rectangle(frame, (0, 0), (w, 40), (10, 15, 25), -1)
+            cv2.line(frame, (0, 40), (w, 40), (0, 240, 255), 1)
+
+            status_label = f"AURA VISION AI | OPERATOR: {'ENGAGED' if operator_present else 'ABSENT'}"
+            cv2.putText(frame, status_label, (15, 26),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
+
+            # Active Gesture Pill
+            if gesture_controller.active_gesture not in ("NONE", "SEARCHING"):
+                cv2.rectangle(frame, (w - 280, 6), (w - 10, 34), (0, 180, 255), -1)
+                cv2.putText(frame, f"GESTURE: {gesture_controller.active_gesture}", (w - 270, 25),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.45, (10, 15, 25), 2)
+
+            # Operator Absence Countdown Warning
+            if not operator_present and presence_lock_engine.enabled:
+                countdown = presence_info.get("countdown", 0)
+                banner_color = (0, 0, 255) if countdown <= 2 else (0, 140, 255)
+                cv2.rectangle(frame, (w // 2 - 250, h // 2 - 35), (w // 2 + 250, h // 2 + 35), (10, 10, 30), -1)
+                cv2.rectangle(frame, (w // 2 - 250, h // 2 - 35), (w // 2 + 250, h // 2 + 35), banner_color, 2)
+                
+                if presence_info.get("is_locked"):
+                    alert_msg = "WORKSTATION LOCKED - ZERO TRUST TRIGGERED"
+                else:
+                    alert_msg = f"OPERATOR ABSENT! AUTO-LOCK IN {countdown}s"
+                
+                cv2.putText(frame, alert_msg, (w // 2 - 230, h // 2 + 8),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, banner_color, 2)
 
             ok, buffer = cv2.imencode(".jpg", frame)
             if not ok:
@@ -1023,6 +1119,59 @@ def vision_stream():
         generate_vision_frames(),
         media_type="multipart/x-mixed-replace; boundary=frame",
     )
+
+
+class VisionSettingsRequest(BaseModel):
+    auto_lock_enabled: Optional[bool] = None
+    grace_period_seconds: Optional[int] = None
+    gesture_control_enabled: Optional[bool] = None
+
+
+@app.get("/api/vision/settings")
+def get_vision_settings():
+    return {
+        "auto_lock_enabled": presence_lock_engine.enabled,
+        "grace_period_seconds": presence_lock_engine.grace_period,
+        "gesture_control_enabled": gesture_controller.enabled,
+        "is_locked": presence_lock_engine.is_locked,
+        "total_locks_triggered": presence_lock_engine.total_locks_triggered,
+        "active_gesture": gesture_controller.active_gesture,
+    }
+
+
+@app.post("/api/vision/settings")
+def update_vision_settings(request: VisionSettingsRequest):
+    if request.auto_lock_enabled is not None:
+        presence_lock_engine.enabled = request.auto_lock_enabled
+    if request.grace_period_seconds is not None:
+        presence_lock_engine.grace_period = max(2, min(60, request.grace_period_seconds))
+    if request.gesture_control_enabled is not None:
+        gesture_controller.enabled = request.gesture_control_enabled
+
+    return {
+        "status": "SUCCESS",
+        "settings": {
+            "auto_lock_enabled": presence_lock_engine.enabled,
+            "grace_period_seconds": presence_lock_engine.grace_period,
+            "gesture_control_enabled": gesture_controller.enabled,
+        }
+    }
+
+
+@app.post("/api/vision/lock-workstation")
+def lock_workstation_now():
+    success = presence_lock_engine.force_lock()
+    try:
+        db.log_event(
+            event_type="ZERO_TRUST",
+            severity="CRITICAL",
+            title="Manual Operator Lockout Triggered",
+            description="Workstation locked on command.",
+            source="VISION_INTELLIGENCE"
+        )
+    except Exception:
+        pass
+    return {"status": "SUCCESS" if success else "FAILED", "is_locked": True}
 
 # =========================================
 # SOC ACTIVE DEFENSE & AUTOMATION
@@ -1386,6 +1535,67 @@ def get_biometrics_descriptors():
     return {
         "operators": db.get_users_with_biometrics(),
     }
+
+
+# ==========================================
+# BLOCKCHAIN AUDIT LEDGER ENDPOINTS (SIH26105)
+# ==========================================
+
+class MineBlockRequest(BaseModel):
+    event_type: str
+    data: dict
+
+class TamperDemoRequest(BaseModel):
+    block_index: Optional[int] = 1
+
+
+@app.get("/api/blockchain/ledger")
+def get_blockchain_ledger():
+    """Returns full cryptographic audit ledger, blocks, and network status."""
+    return blockchain_ledger.get_ledger_summary()
+
+
+@app.get("/api/blockchain/verify")
+def verify_blockchain_integrity():
+    """Performs deep cryptographic verification across SHA-256 headers & Merkle trees."""
+    return blockchain_ledger.verify_integrity()
+
+
+@app.post("/api/blockchain/mine")
+def mine_blockchain_block(request: MineBlockRequest):
+    """Mines a new cryptographic block with Proof-of-Work and Merkle root."""
+    new_block = blockchain_ledger.mine_block(request.event_type, request.data)
+    return {
+        "status": "SUCCESS",
+        "message": f"Block #{new_block.index} ({request.event_type}) cryptographically sealed.",
+        "block": new_block.to_dict(),
+        "integrity": blockchain_ledger.verify_integrity(),
+    }
+
+
+@app.post("/api/blockchain/tamper-demo")
+def tamper_blockchain_demo(request: TamperDemoRequest):
+    """Simulates an insider attack altering financial records to test AURA tamper detection."""
+    idx = request.block_index if request.block_index is not None else 1
+    result = blockchain_ledger.simulate_tamper_attack(idx)
+    integrity = blockchain_ledger.verify_integrity()
+    return {
+        **result,
+        "integrity": integrity,
+    }
+
+
+@app.post("/api/blockchain/restore")
+def restore_blockchain_consensus():
+    """Restores the blockchain ledger to pristine state via consensus backup snapshot."""
+    result = blockchain_ledger.restore_consensus()
+    integrity = blockchain_ledger.verify_integrity()
+    return {
+        **result,
+        "integrity": integrity,
+        "ledger": blockchain_ledger.get_ledger_summary(),
+    }
+
 
 if __name__ == "__main__":
     import uvicorn

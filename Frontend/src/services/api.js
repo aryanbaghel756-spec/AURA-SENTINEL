@@ -114,6 +114,16 @@ export const api = {
 
   // Module 09: Vision Intelligence
   getVisionStreamUrl: () => `${API_BASE_URL}/api/vision/stream`,
+  getVisionSettings: () => request("/api/vision/settings"),
+  updateVisionSettings: (payload) =>
+    request("/api/vision/settings", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  lockWorkstation: () =>
+    request("/api/vision/lock-workstation", {
+      method: "POST",
+    }),
 
   // Persistent SQLite Database Hub
   getDatabaseEvents: (severity = "ALL", limit = 50) =>
@@ -140,6 +150,24 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   getBiometricsDescriptors: () => request("/api/auth/biometrics/descriptors"),
+
+  // Module 11: Blockchain-Backed Risk & Investment Ledger (SIH26105)
+  getBlockchainLedger: () => request("/api/blockchain/ledger"),
+  verifyBlockchain: () => request("/api/blockchain/verify"),
+  mineBlockchainBlock: (payload) =>
+    request("/api/blockchain/mine", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  simulateBlockchainTamper: (block_index = 1) =>
+    request("/api/blockchain/tamper-demo", {
+      method: "POST",
+      body: JSON.stringify({ block_index }),
+    }),
+  restoreBlockchainConsensus: () =>
+    request("/api/blockchain/restore", {
+      method: "POST",
+    }),
 };
 
 

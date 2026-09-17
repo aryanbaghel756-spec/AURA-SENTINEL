@@ -6,9 +6,9 @@ anomaly detection, threat intelligence, heuristic risk engines, and entity track
 
 from .config import AIEngineConfig
 from .Anomaly import SystemAnomalyDetector, TrafficAnomalyDetector
-from .Detection import ThreatDetector, HIGH_RISK_PORTS, ATTACK_SCENARIOS
+from .Detection import ThreatDetector, HIGH_RISK_PORTS, ATTACK_SCENARIOS, GestureController
 from .Risk_engine import RiskScorer, risk_scorer, FinancialExposureEngine
-from .Tracking import CentroidTracker, ThreatActorTracker
+from .Tracking import CentroidTracker, ThreatActorTracker, PresenceAutoLockEngine
 
 __all__ = [
     "AIEngineConfig",
@@ -22,4 +22,6 @@ __all__ = [
     "FinancialExposureEngine",
     "CentroidTracker",
     "ThreatActorTracker",
+    "GestureController",
+    "PresenceAutoLockEngine",
 ]

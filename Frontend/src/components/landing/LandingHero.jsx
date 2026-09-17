@@ -62,7 +62,7 @@ export default function LandingHero({
             className="nav-link"
             onClick={() => audioService.playClick()}
           >
-            9 ENGINES
+            10 ENGINES
           </a>
           {onGenerateReport && (
             <button

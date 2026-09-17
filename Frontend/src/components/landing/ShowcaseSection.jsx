@@ -84,6 +84,15 @@ const SHOWCASE_MODULES = [
     badge: "COMPUTER VISION",
     featured: false,
   },
+  {
+    id: "blockchain-ledger",
+    num: "10",
+    title: "Blockchain Audit Ledger",
+    icon: "⛓",
+    desc: "Cryptographic SHA-256 Merkle risk ledger providing tamper-proof audit trails for SIH26105 theme compliance.",
+    badge: "IMMUTABLE AUDIT",
+    featured: true,
+  },
 ];
 
 export default function ShowcaseSection({ onInitialize }) {
@@ -95,7 +104,7 @@ export default function ShowcaseSection({ onInitialize }) {
         </div>
         <div className="section-eyebrow-chip">
           <span className="eyebrow-glow-dot"></span>
-          <span>NINE OPERATIONAL ENGINES</span>
+          <span>TEN OPERATIONAL ENGINES</span>
         </div>
         <h2>ONE COHESIVE CYBER WORKSTATION</h2>
         <p className="showcase-sub">

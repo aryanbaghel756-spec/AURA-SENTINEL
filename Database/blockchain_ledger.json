@@ -1,0 +1,71 @@
+[
+  {
+    "index": 0,
+    "timestamp": "2026-09-16T18:03:21.201851Z",
+    "event_type": "GENESIS_ANCHOR",
+    "data": {
+      "authority": "AICTE Cyber Security Cell",
+      "initiative": "Smart India Hackathon 2026",
+      "problem_id": "SIH26105",
+      "platform": "AURA SENTINEL Continuous Risk Quantification",
+      "compliance": "NIST CSF 2.0 / FAIR Model v2.1",
+      "status": "GENESIS_NODE_ONLINE"
+    },
+    "merkle_root": "43791a8e84113efed20232a453d2c131d9111a3feb8780a2ef3d41084c594666",
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "nonce": 42,
+    "hash": "ba1a1242b1d9ea66ec426f275d15f3941baefd63cded02143fd1d3381795af22"
+  },
+  {
+    "index": 1,
+    "timestamp": "2026-09-16T18:03:21.202852Z",
+    "event_type": "RISK_QUANTIFICATION",
+    "data": {
+      "system_id": "AICTE_CAMPUS_GATEWAY_NODE_01",
+      "risk_score": 42.5,
+      "risk_level": "MODERATE",
+      "open_ports_count": 5,
+      "estimated_annual_loss_inr": 850000,
+      "probable_breach_scenario": "External RDP / SSH Port Probing",
+      "fair_model_loss_magnitude": "LOW_MEDIUM"
+    },
+    "merkle_root": "d9aa8c9c3b93ee75fa3ae81fec394cff02e4483a7a9850c6eed5798cf13f89a3",
+    "previous_hash": "ba1a1242b1d9ea66ec426f275d15f3941baefd63cded02143fd1d3381795af22",
+    "nonce": 5,
+    "hash": "03cd4ee9df23c07b3773304eb75a669ed6915295ece57f734ea25ea6fb00d1d6"
+  },
+  {
+    "index": 2,
+    "timestamp": "2026-09-16T18:03:21.202852Z",
+    "event_type": "INVESTMENT_OPTIMIZATION",
+    "data": {
+      "organization": "Technical Education Institute Consortium",
+      "allocated_budget_inr": 2500000,
+      "recommended_portfolio": "ZTNA Core + EDR Endpoint Shield",
+      "projected_risk_reduction_pct": 74.5,
+      "projected_savings_inr": 4200000,
+      "rosi_roi_percent": 168.0,
+      "algorithm": "Pareto Knapsack Optimizer"
+    },
+    "merkle_root": "5974bebd1d3dd57a0646583cd7e86b4239db0fb56c59ab9994ae98e581a30091",
+    "previous_hash": "03cd4ee9df23c07b3773304eb75a669ed6915295ece57f734ea25ea6fb00d1d6",
+    "nonce": 51,
+    "hash": "01697ba9826b448fa3686e8b905ab6c9043e5966527fde8fdad919e4625384cb"
+  },
+  {
+    "index": 3,
+    "timestamp": "2026-09-16T18:03:21.203851Z",
+    "event_type": "THREAT_QUARANTINE",
+    "data": {
+      "action": "FILE_QUARANTINE_ISOLATION",
+      "file_name": "credentials_backup.env",
+      "file_hash_sha256": "19313d65fa4222b793dda1ae3e87378fcbf41c016dd152192fe6211c0f483ab2",
+      "threat_type": "HIGH_CONFIDENCE_CREDENTIAL_LEAK",
+      "action_status": "ISOLATED_IN_SECURE_VAULT"
+    },
+    "merkle_root": "2aaca9a5df3a205fd2bb105f9b8ab4e92ec5a7c85fc2f7edafe3dd5348b8e303",
+    "previous_hash": "01697ba9826b448fa3686e8b905ab6c9043e5966527fde8fdad919e4625384cb",
+    "nonce": 13,
+    "hash": "02ae93412d0d54a64d3084c170f82b5e5cae2251cdad44b56568db8b22593706"
+  }
+]

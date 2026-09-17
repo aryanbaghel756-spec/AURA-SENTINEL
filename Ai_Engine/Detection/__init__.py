@@ -5,5 +5,6 @@ Signatures and heuristic inspection for open network ports, attack scenarios, an
 
 from .threat_detector import ThreatDetector
 from .signatures import HIGH_RISK_PORTS, SUSPICIOUS_PROCESS_PATTERNS, ATTACK_SCENARIOS
+from .gesture_controller import GestureController
 
-__all__ = ["ThreatDetector", "HIGH_RISK_PORTS", "SUSPICIOUS_PROCESS_PATTERNS", "ATTACK_SCENARIOS"]
+__all__ = ["ThreatDetector", "HIGH_RISK_PORTS", "SUSPICIOUS_PROCESS_PATTERNS", "ATTACK_SCENARIOS", "GestureController"]
