@@ -1,0 +1,205 @@
+=== PAGE 1 ===
+SMART INDIA HACKATHON 2025
+Problem Statement ID – 25050
+Problem Statement Title-  SMART TRAFFIC MANAGEMENT SYSTEM
+FOR URBAN CONGESTION
+Theme- TRANSPORTATION & LOGISTICS
+PS Category- Software
+Team ID-  92770
+Team Name (Registered on portal) - 404 The Optimists
+1
+
+
+=== PAGE 2 ===
+ Lanezy: AI-Powered Adaptive Traffic Control 
+Revolutionizing India's Roads
+2
+@SIH Idea submission- Template
+404- The
+Optimistics
+Emergency Delays
+Recurring Obstacles
+Real-time Detection &
+Alerts
+@SIH Idea submission- Template
+2
+Solution: AI system optimizes
+signals, detects anomalies,
+ensuring safer, faster traffic flow.
+Priority Vehicle
+Routing
+Real-world issue: Urban congestion, accidents,
+emergency delays, and poor enforcement cost
+billions annually, causing massive fuel loss and
+significant time loss.
+Why important: India loses ₹60,000+ crores
+annually due to traffic delays and fuel wastage;
+road accidents claim over 150,000 lives each year.
+Smart Signal Control
+Risk
+Risk
+Risk
+Solution
+Solution
+Solution
+vs
+vs
+vs
+Prototype
+Video
+Website
+Endless Traffic Jams
+ChatBot
+
+
+=== PAGE 3 ===
+TECHNICAL APPROACH
+3
+@SIH Idea submission- Template
+404 The
+Optimistics
+Latitude and
+Longitude
+Contains all the cordinates of
+traffic signals, calculate nearest
+traffic signal based on
+Haversine Formula
+METHODOLOGY & PROCESS OF
+METHODOLOGY & PROCESS OF
+IMPLEMENTATION
+IMPLEMENTATION 
+METHODOLOGY & PROCESS OF
+IMPLEMENTATION 
+TECHNOLOGIES USED
+TECHNOLOGIES USED
+TECHNOLOGIES USED
+Backend
+SYSTEM IOT
+SYSTEM IOT
+SYSTEM IOT
+Detailed Report
+Report
+GitHub
+
+
+=== PAGE 4 ===
+FEASIBILITY AND VIABILITY
+404 The
+Optimistics
+FEASIBILITY ANALYSIS
+VIABILITY
+4
+@SIH Idea submission- Template
+O p e l A s t r a
+Proven Concept: Leverages the success
+of existing AI-driven traffic systems in
+major cities, demonstrating clear
+market demand and viability.
+Builds Public Trust: Automated
+detection minimizes human bias, while
+timestamped video evidence provides
+credible, transparent proof for all
+incidents.
+Guarantees Accountability: Fosters
+transparency through detailed logs,
+acknowledgements, and performance
+analytics, ensuring every action is
+traceable.
+Ensures Authority Engagement: Real-
+time dashboards and one-click dispatch
+alerts keep operators actively engaged
+and enable rapid response.
+BUSINESS POTENTIAL
+Infrastructure Reusability:
+Leverages existing traffic signals
+and cameras, requiring minimal
+additional hardware installation
+Scalable Deployment: Can be
+implemented at a few key intersections
+initially and gradually expanded
+citywide as needed.
+Cost-Effectiveness: Setup cost is
+relatively low compared to building
+entirely new infrastructure.
+Authority Integration: Includes features
+like SOS alerts, obstacle detection, and
+manual override for seamless police
+control.
+New Revenue Generation: Creates a
+direct and sustainable revenue stream
+through seamless integration with e-
+challan systems for automated fine
+collection.
+Government Cost Savings: Automates
+manual monitoring to significantly reduce
+operational costs and optimize the allocation
+of traffic personnel.
+
+
+=== PAGE 5 ===
+5
+@SIH Idea submission- Template
+404 The
+Optimistics
+IMPACT AND BENEFITS
+ 
+Time Lost 
+in Traffic
+Fuel Wastage
+Economic
+ Loss
+ 
+Reduces traffic congestion by
+30–40%, improving city
+mobility.
+Reduced Congestion
+Saves crucial emergency
+time by giving ambulances
+and fire trucks priority at
+signals.
+Faster Response
+Cuts fuel wastage, leading to
+lower costs and less pollution.
+Lower Fuel Wastage
+Emergency Alerts
+Supports police & city
+management with real-time
+alerts for accidents and
+blockages.
+Safety
+Quicker emergency response,
+safer mobility, smoother urban
+commute.
+Economic
+Time optimization, fuel cost
+savings, improved transport
+productivity.
+Environmental
+Reduced carbon footprint,
+minimized noise & air
+pollution, sustainable urban
+living.
+Technology
+Smart automation, real-time
+monitoring, AI-driven traffic
+management.
+From Gridlock to
+ Green Light
+
+
+=== PAGE 6 ===
+RESEARCH AND REFERENCES
+6
+@SIH Idea submission- Template
+404 The
+Optimistics
+UI/UX
+LINK
+LINK
+LINK
+LINK
+LINK
+LINK
+LINK
+
+
