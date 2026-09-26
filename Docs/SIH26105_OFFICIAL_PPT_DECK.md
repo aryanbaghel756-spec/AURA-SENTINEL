@@ -16,7 +16,10 @@
 - **Category:** Software
 - **Sub-Category:** Enterprise & Higher Education Cyber Defense
 - **Target Organization:** All India Council for Technical Education (AICTE - Cyber Security Cell)
-- **Team Name / Leader:** [Your Team Name] | [Aryan Baghel & Team Members]
+- **Team Name & ID:** ByteForce_1 (Official SIH Team ID: 180219)
+- **College / Institute:** Skyline Institute of Engineering and Technology, Greater Noida
+- **Team Leader:** Aryan Baghel
+- **Team Members:** Aryan Baghel (Lead), Kirti, Hitesh Chauhan, Avinav Jha, Sharim Khan, Aman Sekh
 - **Core Tagline:** *"From Abstract Vulnerabilities to Actuarial Rupee Losses — Sealed in Cryptographic Proof."*
 
 ---
