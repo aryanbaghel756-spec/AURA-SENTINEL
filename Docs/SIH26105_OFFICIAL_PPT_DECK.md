@@ -59,10 +59,13 @@
 
 ### 🟢 SLIDE 4: FEASIBILITY, MATHEMATICAL VIABILITY & FAIR MODEL
 - **Actuarial Financial Loss Formulation (Factor Analysis of Information Risk - FAIR):**
-  $$\text{Expected Annual Loss (EAL)} = \text{Threat Event Frequency (TEF)} \times \text{Vulnerability Factor (V)} \times \text{Loss Magnitude (LM in ₹)}$$
+  $$\text{Expected Annual Loss (EAL in ₹)} = \text{Threat Event Frequency (TEF)} \times \text{Vulnerability Factor (V)} \times \text{Loss Magnitude (LM in ₹)}$$
+  $$\text{Value at Risk (VaR 95\%)} = \text{Estimated Max 95th Percentile Probable Downside Financial Exposure (₹)}$$
   $$\text{Incident Impact Cost} = \text{Estimated Hourly Disruption Cost (₹)} \times \text{Mean Time to Recovery (MTTR in Hours)}$$
 - **Security Investment Optimization (Pareto Knapsack Model):**
   $$\text{ROSI (\%)} = \frac{(\text{Risk Loss Mitigation} \times \text{Mitigation Ratio}) - \text{Defense Solution Cost}}{\text{Defense Solution Cost}} \times 100$$
+  $$\text{Optimization Constraint: } \sum (\text{Solution Costs}) \le \text{Total Institutional Budget (e.g. ₹1 Crore)}$$
+  - Generates interactive **"Investment vs. Risk Reduction"** Pareto curves highlighting diminishing returns and optimal spend zones.
 - **Local-First & Resource Light:**
   - Zero expensive cloud dependencies — runs on standard campus laptop hardware (<30ms inference latency).
   - Merkle root calculation & Proof-of-Work verified in <5ms for real-time responsiveness.
@@ -70,7 +73,7 @@
 ---
 
 ### 🟢 SLIDE 5: IMPACT, SCALABILITY & CAMPUS DEPLOYMENT
-- **Impact for AICTE & Educational Institutions:**
+- **Impact for AICTE, Banks & Educational Institutions:**
   - Protects 10,000+ AICTE-approved engineering and technical institutions across India.
   - Indian Higher Education sector suffered 5,100+ cyber attacks weekly in 2025; AURA replaces costly ₹50L/yr foreign enterprise suites with a local-first platform.
 - **Enterprise Scalability Architecture:**
@@ -81,13 +84,13 @@
 
 ---
 
-### 🟢 SLIDE 6: STANDARDS, COMPLIANCE & REFERENCES
-- **Global Compliance Frameworks Built-In:**
-  - **NIST Cybersecurity Framework 2.0:** Identify, Protect, Detect, Respond, Recover.
-  - **The Open Group FAIR Model (ANSI/FAIR):** Standard for Cyber Risk Quantification.
-  - **MITRE ATT&CK Matrix v15:** Wargame scenario mappings (T1110 Brute Force, T1046 Port Scans).
-  - **CERT-In Cyber Security Directions (April 2022):** Mandatory 6-hour incident log preservation achieved via immutable blockchain ledger.
+### 🟢 SLIDE 6: STANDARDS, REGULATORY COMPLIANCE & FRAMEWORK MAPPING
+- **Global & Indian Regulatory Compliance Frameworks Built-In:**
+  - **RBI Cyber Security Framework & SEBI Cyber Resilience Framework:** Native control mapping, threshold alerting, and board-level risk posture reporting.
+  - **ISO/IEC 27001 & NIST Cybersecurity Framework 2.0 & CIS Controls v8:** Automated evidence aggregation across Identify, Protect, Detect, Respond, Recover.
+  - **CERT-In Cyber Security Directions (April 2022):** Mandatory 180-day unalterable incident log preservation achieved via immutable blockchain ledger.
   - **Digital Personal Data Protection (DPDP) Act 2023:** PII detection for Indian credentials (Aadhaar, PAN).
+  - **MITRE ATT&CK Matrix v15 & What-If Simulations:** Scenario analysis ('What if MFA is deployed?', 'What if patch is delayed by 30 days?').
 
 ---
 
