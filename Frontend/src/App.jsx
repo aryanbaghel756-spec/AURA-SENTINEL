@@ -39,8 +39,14 @@ import FileSecurity from "./components/modules/FileSecurity";
 import VisionIntelligence from "./components/modules/VisionIntelligence";
 import BlockchainLedger from "./components/modules/BlockchainLedger";
 import FinancialIntelligence from "./components/modules/FinancialIntelligence";
+import ExecutiveSOCConsole from "./components/executive_soc/ExecutiveSOCConsole";
 
 export default function App() {
+  const [currentView, setCurrentView] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("view") === "legacy" ? "legacy" : "executive_soc";
+  });
+
   const [activeModule, setActiveModule] = useState(null);
   const [systemStarted, setSystemStarted] = useState(false);
   const [booting, setBooting] = useState(false);
@@ -64,6 +70,10 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportAuditData, setReportAuditData] = useState({ riskData: null, attackData: null });
+
+  if (currentView === "executive_soc") {
+    return <ExecutiveSOCConsole onSwitchToLegacy={() => setCurrentView("legacy")} />;
+  }
 
   const showToast = (message, type = "info") => {
     setToast({ message, type });

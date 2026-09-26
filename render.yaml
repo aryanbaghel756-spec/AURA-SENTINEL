@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: aura-sentinel-backend
+    env: python
+    buildCommand: "pip install -r Backend/requirements-render.txt"
+    startCommand: "python -m uvicorn Backend.executive_server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12

@@ -1,63 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 :root {
-  /* Surface & Background */
-  --bg-primary: #02050e;
-  --bg-secondary: #050b1a;
-  --bg-card: rgba(7, 15, 33, 0.72);
-  --bg-card-hover: rgba(12, 25, 52, 0.85);
-  --bg-panel: rgba(5, 12, 28, 0.88);
-
-  /* Cyber Borders */
-  --border-subtle: rgba(80, 150, 255, 0.14);
-  --border-active: rgba(80, 180, 255, 0.38);
-  --border-glow: rgba(0, 229, 255, 0.5);
-
-  /* Semantic SOC Threat Tokens */
-  --threat-critical: #ff2a55;
-  --threat-critical-glow: rgba(255, 42, 85, 0.4);
-  --threat-critical-bg: rgba(255, 42, 85, 0.1);
-
-  --threat-high: #ff7700;
-  --threat-high-glow: rgba(255, 119, 0, 0.4);
-  --threat-high-bg: rgba(255, 119, 0, 0.1);
-
-  --threat-moderate: #ffc400;
-  --threat-moderate-glow: rgba(255, 196, 0, 0.35);
-  --threat-moderate-bg: rgba(255, 196, 0, 0.1);
-
-  --threat-low: #00e5ff;
-  --threat-low-glow: rgba(0, 229, 255, 0.35);
-  --threat-low-bg: rgba(0, 229, 255, 0.08);
-
-  --threat-nominal: #00e676;
-  --threat-nominal-glow: rgba(0, 230, 118, 0.35);
-  --threat-nominal-bg: rgba(0, 230, 118, 0.08);
-
-  /* Cyber Accents */
-  --aura-blue: #0b8cff;
-  --aura-blue-glow: rgba(11, 140, 255, 0.5);
-  --aura-cyan: #00f0ff;
-  --aura-cyan-glow: rgba(0, 240, 255, 0.6);
-  --aura-purple: #8a2be2;
-
-  /* Typography Colors */
-  --text-primary: #f8fbff;
-  --text-secondary: #9cb1d4;
-  --text-muted: #62779c;
-  --text-dim: #3a4b66;
-
-  /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
-
-  /* Fonts */
-  --font-display: "Orbitron", sans-serif;
-  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --bg-primary: #0B1220;
+  --bg-card: #16213A;
+  --bg-card-hover: #1E2D4F;
+  --border-card: #1F2E4D;
+  --aura-cyan: #22D3EE;
+  --aura-amber: #F59E0B;
+  --aura-emerald: #10B981;
+  --aura-violet: #8B5CF6;
+  --aura-rose: #F43F5E;
 }
 
 *, *::before, *::after {
@@ -67,6 +20,7 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  background-color: #0B1220;
 }
 
 body {
@@ -74,55 +28,35 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-body);
+  background-color: #0B1220;
+  color: #F8FAFC;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Custom Cyber Scrollbar */
+/* Custom SOC Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #02050e;
+  background: #0B1220;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(80, 150, 255, 0.25);
+  background: #1F2E4D;
   border-radius: 4px;
-  border: 1px solid rgba(80, 150, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 229, 255, 0.45);
+  background: #22D3EE;
 }
 
-/* Selection */
 ::selection {
-  background: rgba(0, 229, 255, 0.3);
-  color: #ffffff;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-input, select, textarea {
-  font-family: inherit;
+  background: rgba(34, 211, 238, 0.3);
+  color: #FFFFFF;
 }
