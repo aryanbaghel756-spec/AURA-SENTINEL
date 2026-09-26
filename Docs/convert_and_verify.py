@@ -26,9 +26,15 @@ def convert_pptx_to_pdf(pptx_path, pdf_path):
         presentation.SaveAs(abs_pdf, 32)
         print(f"Saved PDF to: {abs_pdf}")
     finally:
-        if presentation is not None:
-            presentation.Close()
-        ppt.Quit()
+        try:
+            if presentation is not None:
+                presentation.Close()
+        except:
+            pass
+        try:
+            ppt.Quit()
+        except:
+            pass
         os.system("taskkill /f /im POWERPNT.EXE 2>nul")
 
 def verify_and_render(pdf_path):

@@ -7,7 +7,9 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 
 def build_deck():
-    template_path = r"C:\Users\aryan\Downloads\SIH2026-IDEA-Presentation-Format.pptx"
+    template_path = r"C:\Users\aryan\OneDrive\Desktop\Aura\Docs\SIH2026-IDEA-Presentation-Format.pptx"
+    if not os.path.exists(template_path):
+        template_path = r"C:\Users\aryan\Downloads\SIH2026-IDEA-Presentation-Format.pptx"
     out_pptx = r"C:\Users\aryan\OneDrive\Desktop\AURA_SENTINEL_SIH2026_OFFICIAL_SUBMISSION.pptx"
     assets_dir = r"C:\Users\aryan\OneDrive\Desktop\Aura\Docs\assets"
     qr_path = r"C:\Users\aryan\OneDrive\Desktop\Aura\Docs\github_qr.png"
@@ -570,7 +572,9 @@ def build_deck():
         r_link.font.color.rgb = GREEN_ACCENT
 
     # Bottom Left / Center: UI/UX Showcase Image
-    s6_uiux = os.path.join(assets_dir, "slide6_uiux.png")
+    s6_uiux = os.path.join(assets_dir, "slide6_uiux_composite.png")
+    if not os.path.exists(s6_uiux):
+        s6_uiux = os.path.join(assets_dir, "slide6_uiux.png")
     if os.path.exists(s6_uiux):
         s6.shapes.add_picture(s6_uiux, Inches(0.55), Inches(3.68), Inches(8.3), Inches(2.45))
 
