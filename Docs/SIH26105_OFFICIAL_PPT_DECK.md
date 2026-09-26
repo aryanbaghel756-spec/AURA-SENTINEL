@@ -78,7 +78,7 @@ To maintain 100% technical defensibility before evaluators, all unsupported, exa
 *(This 14-slide structure directly matches the generated PowerPoint presentation at `C:\Users\aryan\OneDrive\Desktop\AURA_SENTINEL_SIH26105.pptx`)*
 
 ### 🟢 SLIDE 1: TITLE & METADATA
-- **Header:** SMART INDIA HACKATHON 2026 — OFFICIAL NOMINATION
+- **Header:** SMART INDIA HACKATHON 2026
 - **Title:** AURA SENTINEL
 - **Subtitle:** AI-Powered Continuous Cyber Risk Quantification & Investment Optimization Platform
 - **Metadata Card:**
