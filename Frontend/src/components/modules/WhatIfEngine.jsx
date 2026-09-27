@@ -51,7 +51,12 @@ const ATTACK_VECTORS = {
 };
 
 export default function WhatIfEngine() {
-  const [activeTab, setActiveTab] = useState("hypothetical"); // "hypothetical" | "wargame"
+  const [activeTab, setActiveTab] = useState("hypothetical"); // "hypothetical" | "wargame" | "knapsack"
+
+  // 0/1 Knapsack Budget Simulator State
+  const [knapsackBudget, setKnapsackBudget] = useState(500000);
+  const [knapsackResult, setKnapsackResult] = useState(null);
+  const [isKnapsackLoading, setIsKnapsackLoading] = useState(false);
 
   // Hypothetical Tuning State
   const [simulation, setSimulation] = useState({
@@ -183,6 +188,21 @@ export default function WhatIfEngine() {
     }
   };
 
+  // 0/1 Knapsack Dynamic Programming Budget Scenario Solver
+  const fetchKnapsackSimulation = async (budgetVal) => {
+    const val = Math.max(0, Number(budgetVal));
+    setKnapsackBudget(val);
+    setIsKnapsackLoading(true);
+    try {
+      const res = await api.optimizeKnapsack({ budget: val });
+      setKnapsackResult(res);
+    } catch (err) {
+      console.error("Knapsack simulation fetch error:", err);
+    } finally {
+      setIsKnapsackLoading(false);
+    }
+  };
+
   const simulatedRisk = calculateSimulatedRisk();
   const simulatedLevel =
     simulatedRisk >= 60 ? "HIGH" : simulatedRisk >= 30 ? "MODERATE" : "LOW";
@@ -260,6 +280,16 @@ export default function WhatIfEngine() {
           >
             <span className="live-pulse-dot"></span>
             LIVE ATTACK WARGAME (SIH DEMO)
+          </button>
+          <button
+            className={`wargame-tab-btn ${activeTab === "knapsack" ? "active" : ""}`}
+            onClick={() => {
+              audioService.playClick();
+              setActiveTab("knapsack");
+              if (!knapsackResult) fetchKnapsackSimulation(knapsackBudget);
+            }}
+          >
+            <span>🎯</span> 0/1 KNAPSACK BUDGET SIMULATOR
           </button>
         </div>
       </div>
@@ -447,7 +477,7 @@ export default function WhatIfEngine() {
             </div>
           </section>
         </>
-      ) : (
+      ) : activeTab === "wargame" ? (
         /* LIVE ATTACK WARGAME (SIH DEMO MODE) */
         <section className="wargame-container">
           <div className="wargame-setup-card">
@@ -554,7 +584,152 @@ export default function WhatIfEngine() {
             </div>
           )}
         </section>
-      )}
+      ) : activeTab === "knapsack" ? (
+        <section className="knapsack-optimizer-card" style={{ marginTop: 0 }}>
+          <div className="knapsack-header">
+            <div className="knapsack-title-area">
+              <span className="process-eyebrow">WHAT-IF BUDGET OPTIMIZATION</span>
+              <h2><span>🎯</span> 0/1 KNAPSACK DYNAMIC PROGRAMMING SIMULATOR</h2>
+              <p style={{ margin: "4px 0 0", color: "#94A3B8", fontSize: "13px" }}>
+                Simulate different cybersecurity budget scenarios and observe how the 0/1 Knapsack DP algorithm recalculates the optimal defense portfolio.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+              <div className="knapsack-algo-badge">
+                <span>⚡</span> 0/1 KNAPSACK DP ENGINE
+              </div>
+              <div className="knapsack-constraint-badge">
+                <span>🔒</span> BUDGET CEILING: ₹{knapsackBudget.toLocaleString("en-IN")}
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Controller */}
+          <div className="knapsack-controller" style={{ marginBottom: "24px" }}>
+            <div className="knapsack-controller-header">
+              <div>
+                <span className="process-eyebrow">BUDGET WHAT-IF SLIDER</span>
+                <h3>TEST HYPOTHETICAL BUDGET ALLOCATIONS</h3>
+              </div>
+              <div className="knapsack-presets-row">
+                <button
+                  className={`knapsack-preset-btn ${knapsackBudget === 100000 ? "active" : ""}`}
+                  onClick={() => fetchKnapsackSimulation(100000)}
+                >
+                  ₹1 LAKH
+                </button>
+                <button
+                  className={`knapsack-preset-btn ${knapsackBudget === 300000 ? "active" : ""}`}
+                  onClick={() => fetchKnapsackSimulation(300000)}
+                >
+                  ₹3 LAKH
+                </button>
+                <button
+                  className={`knapsack-preset-btn ${knapsackBudget === 500000 ? "active" : ""}`}
+                  onClick={() => fetchKnapsackSimulation(500000)}
+                >
+                  ₹5 LAKH
+                </button>
+                <button
+                  className={`knapsack-preset-btn ${knapsackBudget === 1000000 ? "active" : ""}`}
+                  onClick={() => fetchKnapsackSimulation(1000000)}
+                >
+                  ₹10 LAKH
+                </button>
+                <button
+                  className={`knapsack-preset-btn ${knapsackBudget === 1500000 ? "active" : ""}`}
+                  onClick={() => fetchKnapsackSimulation(1500000)}
+                >
+                  ₹15 LAKH
+                </button>
+              </div>
+            </div>
+
+            <div className="knapsack-slider-box">
+              <input
+                type="range"
+                className="knapsack-slider"
+                min="50000"
+                max="1500000"
+                step="25000"
+                value={knapsackBudget}
+                onChange={(e) => fetchKnapsackSimulation(Number(e.target.value))}
+              />
+              <input
+                type="number"
+                className="knapsack-input-num"
+                value={knapsackBudget}
+                onChange={(e) => fetchKnapsackSimulation(Number(e.target.value))}
+              />
+              <button
+                className="knapsack-preset-btn active"
+                style={{ padding: "8px 16px" }}
+                disabled={isKnapsackLoading}
+                onClick={() => fetchKnapsackSimulation(knapsackBudget)}
+              >
+                {isKnapsackLoading ? "CALCULATING DP..." : "⚡ SOLVE DP"}
+              </button>
+            </div>
+          </div>
+
+          {knapsackResult && (
+            <>
+              {/* Summary Metrics */}
+              <div className="knapsack-metrics-grid">
+                <div className="knapsack-metric-card accent-cyan">
+                  <span>HYPOTHETICAL BUDGET</span>
+                  <strong>₹{knapsackResult.budget?.toLocaleString("en-IN")}</strong>
+                  <small>Constraint Capacity (W)</small>
+                </div>
+                <div className="knapsack-metric-card accent-emerald">
+                  <span>OPTIMIZED INVESTMENT</span>
+                  <strong>₹{knapsackResult.total_cost?.toLocaleString("en-IN")}</strong>
+                  <small>{knapsackResult.selected_investments?.length} Controls Selected</small>
+                </div>
+                <div className="knapsack-metric-card accent-amber">
+                  <span>REMAINING CAPITAL</span>
+                  <strong>₹{knapsackResult.remaining_budget?.toLocaleString("en-IN")}</strong>
+                  <small>Unallocated Budget</small>
+                </div>
+                <div className="knapsack-metric-card accent-emerald">
+                  <span>MODELED RISK SUPPRESSION</span>
+                  <strong>+{knapsackResult.total_risk_reduction}%</strong>
+                  <small>Max Combined Risk Value</small>
+                </div>
+              </div>
+
+              {/* Selected Controls List */}
+              <div style={{ marginTop: "20px" }}>
+                <h3 style={{ fontSize: "16px", color: "#38BDF8", marginBottom: "12px", fontFamily: "Orbitron, sans-serif" }}>
+                  SELECTED DEFENSE CONTROLS ({knapsackResult.selected_investments?.length || 0})
+                </h3>
+                <div className="knapsack-items-grid">
+                  {(knapsackResult.selected_investments || []).map((control) => (
+                    <div key={control.id} className="knapsack-item-card selected">
+                      <div className="knapsack-item-top">
+                        <span className="knapsack-item-category">{control.category}</span>
+                        <span className="knapsack-item-badge-sel">✓ SELECTED IN DP</span>
+                      </div>
+                      <h4>{control.name}</h4>
+                      <p className="knapsack-item-desc">{control.description}</p>
+                      <div className="knapsack-item-footer">
+                        <div>
+                          <span style={{ fontSize: "10px", color: "#64748B", display: "block" }}>COST</span>
+                          <strong className="knapsack-item-cost">₹{control.cost?.toLocaleString("en-IN")}</strong>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: "10px", color: "#64748B", display: "block" }}>RISK VALUE</span>
+                          <span className="knapsack-item-gain">+{control.risk_reduction} pts</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+      ) : null}
     </main>
   );
 }

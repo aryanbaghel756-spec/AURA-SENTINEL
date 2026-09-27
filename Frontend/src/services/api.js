@@ -59,6 +59,13 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  getKnapsackOptimizer: (budget = 500000) =>
+    request(`/api/investment-optimizer/knapsack?budget=${budget}`),
+  optimizeKnapsack: (payload) =>
+    request("/api/investment-optimizer/knapsack", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 
   // Module 07: AI Voice Assistant & File Ops
   chatWithAura: (payload) =>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import psutil
 from pydantic import BaseModel
@@ -8,7 +8,7 @@ import shutil
 import hashlib
 import time
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Dict, Any
 import json
 import sys
 import subprocess
@@ -19,6 +19,12 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from Database import db
 from blockchain_ledger import blockchain_ledger
+from investment_optimizer import (
+    knapsack_01_dp,
+    optimize_budget_portfolio,
+    DEFAULT_CANDIDATE_INVESTMENTS,
+    validate_investment_inputs,
+)
 from Ai_Engine import (
     risk_scorer,
     FinancialExposureEngine,
@@ -1014,6 +1020,14 @@ class InvestmentInput(BaseModel):
     monthly_budget: float
     systems: int
     data_value: float
+    budget: Optional[float] = None
+
+
+class KnapsackOptimizerInput(BaseModel):
+    budget: float
+    investments: Optional[List[Dict[str, Any]]] = None
+    business_type: Optional[str] = "Small Business"
+    current_exposure: Optional[float] = None
 
 
 def build_investment_response(monthly_budget: float, systems: int, data_value: float, business_type: str = "Small Business"):
@@ -1115,6 +1129,14 @@ def build_investment_response(monthly_budget: float, systems: int, data_value: f
     if risk_score >= 60:
         defense_recommendations.append("Prioritize immediate security assessment and remediation")
 
+    # Genuine 0/1 Knapsack Dynamic Programming Portfolio Optimization
+    effective_knapsack_budget = max(0.0, monthly_budget)
+    knapsack_opt = optimize_budget_portfolio(
+        budget=effective_knapsack_budget,
+        current_exposure=float(current_exposure),
+        business_type=business_type,
+    )
+
     return {
         "business_type": business_type,
         "live_system_risk": {
@@ -1130,6 +1152,8 @@ def build_investment_response(monthly_budget: float, systems: int, data_value: f
         "recommendation_reason": f"AURA selected {recommended['name']} based on your budget, system count and data value.",
         "plans": optimized_plans,
         "defense_recommendations": defense_recommendations,
+        "knapsack_optimization": knapsack_opt,
+        "candidate_investments": DEFAULT_CANDIDATE_INVESTMENTS,
     }
 
 
@@ -1140,30 +1164,102 @@ def get_investment_optimizer():
 
 @app.post("/api/investment-optimizer/analyze")
 def analyze_investment(data: InvestmentInput):
+    budget_val = data.budget if data.budget is not None else data.monthly_budget
     resp = build_investment_response(
-        monthly_budget=data.monthly_budget,
+        monthly_budget=budget_val,
         systems=data.systems,
         data_value=data.data_value,
         business_type=data.business_type,
     )
     try:
-        rec_plan = resp.get("recommended_plan", {})
+        knap = resp.get("knapsack_optimization", {})
         blockchain_ledger.mine_block(
             event_type="INVESTMENT_OPTIMIZATION",
             data={
                 "business_type": data.business_type,
-                "monthly_budget_inr": data.monthly_budget,
+                "monthly_budget_inr": budget_val,
                 "systems_count": data.systems,
                 "data_value_inr": data.data_value,
-                "recommended_plan": rec_plan.get("name", "Custom Defense"),
-                "projected_risk_reduction_pct": rec_plan.get("risk_reduction", 0),
-                "expected_annual_savings_inr": rec_plan.get("savings", 0),
-                "rosi_roi_pct": rec_plan.get("rosi", 0),
+                "algorithm": "0/1 Knapsack Dynamic Programming",
+                "knapsack_allocated_cost": knap.get("total_cost", 0),
+                "knapsack_risk_reduction": knap.get("total_risk_reduction", 0),
+                "knapsack_selected_controls": [c.get("name") for c in knap.get("selected_investments", [])],
+                "recommended_plan": resp.get("recommended_plan", {}).get("name", "Custom Defense"),
+                "expected_annual_savings_inr": knap.get("potential_savings", 0),
+                "rosi_roi_pct": knap.get("rosi_percent", 0),
             },
         )
     except Exception as e:
         print(f"Blockchain auto-mine error: {e}")
     return resp
+
+
+@app.post("/api/investment-optimizer/knapsack")
+def optimize_knapsack_api(data: KnapsackOptimizerInput):
+    """
+    Dedicated 0/1 Knapsack Dynamic Programming Budget Optimizer Endpoint.
+    Accepts budget, optional custom candidate investments list, business type, and current exposure.
+    Returns optimal non-fractional control portfolio maximizing risk reduction under budget.
+    """
+    if data.budget is None or data.budget < 0:
+        raise HTTPException(status_code=400, detail="Budget cannot be negative. Must be >= 0.")
+
+    try:
+        exposure = data.current_exposure
+        if exposure is None or exposure <= 0:
+            # Calibrate against live host exposure
+            inv_resp = build_investment_response(monthly_budget=data.budget, systems=10, data_value=500000)
+            exposure = inv_resp.get("current_financial_exposure", 1250000.0)
+
+        result = optimize_budget_portfolio(
+            budget=float(data.budget),
+            current_exposure=float(exposure),
+            investments=data.investments,
+            business_type=data.business_type or "Enterprise",
+        )
+
+        try:
+            blockchain_ledger.mine_block(
+                event_type="KNAPSACK_BUDGET_OPTIMIZATION",
+                data={
+                    "algorithm": "0/1 Knapsack Dynamic Programming",
+                    "budget_inr": data.budget,
+                    "allocated_cost_inr": result["total_cost"],
+                    "remaining_budget_inr": result["remaining_budget"],
+                    "risk_reduction_points": result["total_risk_reduction"],
+                    "selected_count": result["selected_count"],
+                    "selected_controls": [c["name"] for c in result["selected_investments"]],
+                },
+            )
+        except Exception as e:
+            print(f"Blockchain mine error for knapsack: {e}")
+
+        return result
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Knapsack optimization failed: {str(e)}")
+
+
+@app.get("/api/investment-optimizer/knapsack")
+def get_knapsack_default(budget: float = 500000.0, business_type: str = "Small Business"):
+    """
+    GET endpoint for default 0/1 Knapsack Dynamic Programming optimization.
+    """
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget cannot be negative. Must be >= 0.")
+    try:
+        inv_resp = build_investment_response(monthly_budget=budget, systems=10, data_value=500000)
+        exposure = inv_resp.get("current_financial_exposure", 1250000.0)
+        return optimize_budget_portfolio(
+            budget=float(budget),
+            current_exposure=float(exposure),
+            business_type=business_type,
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Knapsack optimization failed: {str(e)}")
 
 
 # FILE 

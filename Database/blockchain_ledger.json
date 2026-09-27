@@ -796,5 +796,30 @@
     "previous_hash": "0f58d3bc8d05d5dac515b9c332e39385ba502f7bbd0de9ca4bf8faff956e3174",
     "nonce": 2,
     "hash": "0f1e2d8f80cf58faed08bf7b9d62e6e801e59c650f23b247dc3cd19d6ae71734"
+  },
+  {
+    "index": 47,
+    "timestamp": "2026-09-27T18:49:20.323639Z",
+    "event_type": "KNAPSACK_BUDGET_OPTIMIZATION",
+    "data": {
+      "algorithm": "0/1 Knapsack Dynamic Programming",
+      "budget_inr": 500000.0,
+      "allocated_cost_inr": 500000.0,
+      "remaining_budget_inr": 0.0,
+      "risk_reduction_points": 65.0,
+      "selected_count": 6,
+      "selected_controls": [
+        "Network Traffic & Socket Inspection",
+        "Identity & Access Management (IAM / MFA)",
+        "Immutable Backup & BCDR Recovery",
+        "Security Awareness & Phishing Defense",
+        "Zero-Trust Console Presence Lock",
+        "Cryptographic Merkle Audit Ledger"
+      ]
+    },
+    "merkle_root": "a4af4bea524032690aa9e52768df1713beb088353f865114dcfab559b24d2f83",
+    "previous_hash": "0f1e2d8f80cf58faed08bf7b9d62e6e801e59c650f23b247dc3cd19d6ae71734",
+    "nonce": 8,
+    "hash": "0ba5148cb5c624e9d7d7c6e7c5bff8008d4f418a62440a80739bc22965d6abe3"
   }
 ]
