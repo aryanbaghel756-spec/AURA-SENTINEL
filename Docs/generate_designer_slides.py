@@ -454,18 +454,23 @@ def make_slide_6():
         shot_im = shot_im.resize((2000, 520), Image.Resampling.LANCZOS)
         img.paste(shot_im, (70, 725), shot_im if shot_im.mode == "RGBA" else None)
 
-    # Bottom Right: GitHub QR Code Card
+    # Bottom Right: Interactive Resources & GitHub QR Code Card
     qr_x, qr_w = 2110, 820
     draw.rounded_rectangle([qr_x, 725, qr_x + qr_w, 1245], radius=20, fill='#0F172A', outline='#0284C7', width=3)
-    draw.text((qr_x + qr_w // 2, 765), "OFFICIAL CODE REPOSITORY", fill='#38BDF8', font=get_font(22, bold=True), anchor="mm")
+    draw.text((qr_x + qr_w // 2, 760), "RESOURCES & SYSTEM REPOSITORY", fill='#38BDF8', font=get_font(21, bold=True), anchor="mm")
+
+    # 3D Blueprint Banner Pill
+    draw.rounded_rectangle([qr_x + 25, 785, qr_x + qr_w - 25, 835], radius=10, fill='#1E293B', outline='#22D3EE', width=2)
+    draw.text((qr_x + qr_w // 2, 810), "🌐 Interactive 3D Blueprint: blueprint.html", fill='#22D3EE', font=get_font(18, bold=True), anchor="mm")
 
     if os.path.exists(qr_path):
         qr_im = Image.open(qr_path).convert("RGBA")
-        qr_im = qr_im.resize((320, 320), Image.Resampling.LANCZOS)
-        img.paste(qr_im, (qr_x + qr_w // 2 - 160, 805), qr_im if qr_im.mode == "RGBA" else None)
+        qr_im = qr_im.resize((280, 280), Image.Resampling.LANCZOS)
+        img.paste(qr_im, (qr_x + qr_w // 2 - 140, 850), qr_im if qr_im.mode == "RGBA" else None)
 
-    draw.text((qr_x + qr_w // 2, 1155), "ByteForce_1 // AURA SENTINEL", fill='#FFFFFF', font=get_font(20, bold=True), anchor="mm")
-    draw.text((qr_x + qr_w // 2, 1195), "github.com/aryanbaghel756-spec/AURA-SENTINEL", fill='#94A3B8', font=get_font(18, bold=False), anchor="mm")
+    draw.text((qr_x + qr_w // 2, 1150), "ByteForce_1 // AURA SENTINEL (ID: 180219)", fill='#FFFFFF', font=get_font(19, bold=True), anchor="mm")
+    draw.text((qr_x + qr_w // 2, 1185), "github.com/aryanbaghel756-spec/AURA-SENTINEL", fill='#94A3B8', font=get_font(17, bold=False), anchor="mm")
+    draw.text((qr_x + qr_w // 2, 1215), "★ Includes 3D Architecture Visualizer & Live Risk Simulator ★", fill='#10B981', font=get_font(14, bold=True), anchor="mm")
 
     path = os.path.join(out_dir, "slide_6.png")
     img.save(path, quality=95)
