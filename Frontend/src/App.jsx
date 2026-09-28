@@ -40,11 +40,15 @@ import VisionIntelligence from "./components/modules/VisionIntelligence";
 import BlockchainLedger from "./components/modules/BlockchainLedger";
 import FinancialIntelligence from "./components/modules/FinancialIntelligence";
 import ExecutiveSOCConsole from "./components/executive_soc/ExecutiveSOCConsole";
+import ShowcasePage from "./components/showcase/ShowcasePage";
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get("view") === "legacy" ? "legacy" : "executive_soc";
+    const viewParam = params.get("view");
+    if (viewParam === "executive_soc") return "executive_soc";
+    if (viewParam === "legacy") return "legacy";
+    return "showcase"; // Default judge-friendly showcase website
   });
 
   const [activeModule, setActiveModule] = useState(null);
@@ -71,8 +75,40 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportAuditData, setReportAuditData] = useState({ riskData: null, attackData: null });
 
+  if (currentView === "showcase") {
+    return (
+      <ShowcasePage
+        onLaunchPrototype={() => {
+          setCurrentView("executive_soc");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onSwitchToLegacy={() => {
+          setCurrentView("legacy");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onLaunchModule={(moduleId) => {
+          setActiveModule(moduleId);
+          setSystemStarted(true);
+          setCurrentView("legacy");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+    );
+  }
+
   if (currentView === "executive_soc") {
-    return <ExecutiveSOCConsole onSwitchToLegacy={() => setCurrentView("legacy")} />;
+    return (
+      <ExecutiveSOCConsole
+        onSwitchToLegacy={() => {
+          setCurrentView("legacy");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onSwitchToShowcase={() => {
+          setCurrentView("showcase");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+    );
   }
 
   const showToast = (message, type = "info") => {
@@ -299,6 +335,10 @@ export default function App() {
             currentUser={currentUser}
             onLogout={handleLogout}
             backendConnected={backendConnected}
+            onSwitchToShowcase={() => {
+              setCurrentView("showcase");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
           <div className="module-view-body">
             {activeModule === "system-monitoring" && <SystemMonitoring />}
@@ -326,6 +366,10 @@ export default function App() {
             currentUser={currentUser}
             onLogout={handleLogout}
             backendConnected={backendConnected}
+            onSwitchToShowcase={() => {
+              setCurrentView("showcase");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
           <CommandCenter
             onOpenModule={handleOpenModule}
@@ -392,6 +436,18 @@ export default function App() {
 
           {/* Cyber Boot Initialization Overlay */}
           {booting && <BootScreen onComplete={handleBootComplete} />}
+
+          {/* Floating Showcase Portal Button */}
+          <button
+            onClick={() => {
+              setCurrentView("showcase");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-[#080D18]/95 backdrop-blur-md border border-cyan-500/50 text-cyan-300 font-mono text-xs font-bold shadow-2xl hover:bg-cyan-500/20 hover:border-cyan-400 transition-all cursor-pointer flex items-center space-x-2"
+            title="Return to Product Showcase & Judge Portal"
+          >
+            <span>🌐 SHOWCASE PORTAL</span>
+          </button>
         </div>
       )}
     </div>

@@ -8,7 +8,7 @@ import BudgetOptimizerPanel from './BudgetOptimizerPanel';
 import MerkleAuditPanel from './MerkleAuditPanel';
 import LiveTelemetryPanel from './LiveTelemetryPanel';
 
-export default function ExecutiveSOCConsole({ onSwitchToLegacy }) {
+export default function ExecutiveSOCConsole({ onSwitchToLegacy, onSwitchToShowcase }) {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'budget' | 'merkle' | 'telemetry' | 'all'
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }));
   const [wsConnected, setWsConnected] = useState(true);
@@ -96,6 +96,28 @@ export default function ExecutiveSOCConsole({ onSwitchToLegacy }) {
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>TELEMETRY ACTIVE</span>
             </div>
+
+            {/* Showcase & Judge Portal Switcher */}
+            {onSwitchToShowcase && (
+              <button
+                onClick={onSwitchToShowcase}
+                className="flex items-center space-x-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 py-1.5 px-3 rounded-lg font-bold text-[11px] transition-all cursor-pointer shadow-sm shadow-cyan-500/10"
+                title="Return to Judge Showcase & Architecture Overview"
+              >
+                <span>SHOWCASE PORTAL</span>
+              </button>
+            )}
+
+            {/* Legacy Workstation Switcher */}
+            {onSwitchToLegacy && (
+              <button
+                onClick={onSwitchToLegacy}
+                className="hidden lg:flex items-center space-x-1.5 bg-[#16213A] hover:bg-slate-800 text-slate-300 border border-[#1F2E4D] py-1.5 px-2.5 rounded-lg font-medium text-[11px] transition-colors cursor-pointer"
+                title="Switch to 10-Module Interactive Workstation"
+              >
+                <span>WORKSTATION</span>
+              </button>
+            )}
           </div>
         </div>
 

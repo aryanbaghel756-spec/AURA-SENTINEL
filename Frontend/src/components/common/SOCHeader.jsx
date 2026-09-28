@@ -12,6 +12,7 @@ export default function SOCHeader({
   onLogout = null,
   backendConnected = true,
   alertCount = 0,
+  onSwitchToShowcase = null,
 }) {
   const [currentTime, setCurrentTime] = useState("");
   const [showUtc, setShowUtc] = useState(false);
@@ -110,6 +111,18 @@ export default function SOCHeader({
       </div>
 
       <div className="soc-topbar-right">
+        {/* Showcase & Judge Portal Switcher */}
+        {onSwitchToShowcase && (
+          <button
+            className="soc-time-display"
+            onClick={onSwitchToShowcase}
+            title="Return to Product Showcase & Judge Portal"
+            style={{ color: '#22d3ee', borderColor: '#22d3ee60', fontWeight: 'bold' }}
+          >
+            <span>🌐 SHOWCASE PORTAL</span>
+          </button>
+        )}
+
         {/* Command Palette Button */}
         <button
           className="soc-time-display"
