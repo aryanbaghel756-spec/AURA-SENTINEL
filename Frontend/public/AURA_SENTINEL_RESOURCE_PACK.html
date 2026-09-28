@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURA Sentinel — Technology & Research Resource Pack (SIH 2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080D18;
+      --bg-card: #0F172A;
+      --bg-card-hover: #16213A;
+      --border: #1F2E4D;
+      --cyan: #22D3EE;
+      --cyan-glow: rgba(34, 211, 238, 0.2);
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --rose: #F43F5E;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header-card {
+      background: linear-gradient(135deg, #0F172A 0%, #16213A 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .chip {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #FFFFFF;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 0.5rem;
+    }
+    .desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .meta-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+    }
+    .meta-label {
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .meta-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+    .actions-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #06B6D4 0%, #0284C7 100%);
+      color: #080D18;
+      border: none;
+    }
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
+    }
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      color: var(--cyan);
+      margin: 1.25rem 0 0.5rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    th {
+      background: #080D18;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    .status-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+    }
+    .code-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    .callout {
+      border-left: 4px solid var(--amber);
+      background: rgba(245, 158, 11, 0.08);
+      padding: 1rem 1.25rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+    .callout-danger {
+      border-left-color: var(--rose);
+      background: rgba(244, 63, 94, 0.08);
+    }
+    .callout-success {
+      border-left-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    ul {
+      margin-left: 1.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    @media print {
+      body { background: #FFFFFF; color: #000000; padding: 0; }
+      .header-card, .section-card { border: 1px solid #CCCCCC; box-shadow: none; background: #FFFFFF; color: #000000; }
+      h1, h2, h3 { color: #000000; }
+      th { background: #EEEEEE; color: #000000; }
+      td, th { border: 1px solid #DDDDDD; }
+      .actions-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- HEADER CARD -->
+    <div class="header-card">
+      <span class="chip">Smart India Hackathon 2026 • PS-SIH26105</span>
+      <h1>A.U.R.A. SENTINEL</h1>
+      <div class="subtitle">Autonomous Unified Risk Analytics Platform</div>
+      <p class="desc">AI-Powered Continuous Cyber Risk Quantification & Investment Optimization Platform</p>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-label">Problem Statement</div>
+          <div class="meta-value">SIH26105 (Enterprise Defense)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Submitting Team</div>
+          <div class="meta-value">ByteForce_1 (ID: 180219)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Theme & Category</div>
+          <div class="meta-value">Blockchain & Cybersecurity</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Academic Institution</div>
+          <div class="meta-value">Skyline Institute of Eng & Tech</div>
+        </div>
+      </div>
+
+      <div class="actions-bar">
+        <a href="AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.pdf" download class="btn btn-primary">
+          📥 Download Evaluator PDF
+        </a>
+        <a href="AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.docx" download class="btn btn-secondary">
+          📄 Download Editable DOCX
+        </a>
+        <a href="https://github.com/aryanbaghel756-spec/AURA-SENTINEL" target="_blank" class="btn btn-secondary">
+          🐙 View GitHub Repository
+        </a>
+        <a href="/" class="btn btn-secondary">
+          🌐 Launch Interactive Website
+        </a>
+      </div>
+    </div>
+
+    <!-- SECTION 1: TECHNOLOGY IMPLEMENTATION MATRIX -->
+    <div class="section-card">
+      <h2>1. Technology Implementation Matrix</h2>
+      <p class="desc">Only technologies verified in the current AURA Sentinel codebase are documented below:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Technology / Model</th>
+            <th>Purpose in AURA</th>
+            <th>How AURA Uses It</th>
+            <th>Status</th>
+            <th>Official Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>YOLOv8</strong><br/><span class="desc">Ultralytics</span></td>
+            <td>Object Detection</td>
+            <td>Computer-vision based operator presence detection & physical boundary surveillance.</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://docs.ultralytics.com/models/yolov8/" target="_blank">docs.ultralytics.com ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>MITRE ATT&CK®</strong><br/><span class="desc">Enterprise</span></td>
+            <td>Threat Technique Mapping</td>
+            <td>Maps open ports and anomalies to technique IDs (T1046, T1021, T1059).</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://attack.mitre.org/" target="_blank">attack.mitre.org ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>psutil + OS APIs</strong><br/><span class="desc">Kernel Hooks</span></td>
+            <td>System Telemetry</td>
+            <td>Continuous streaming of CPU, memory, disk I/O, process tables, and sockets.</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://psutil.readthedocs.io/en/stable/" target="_blank">psutil.readthedocs.io ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>0/1 Knapsack DP</strong><br/><span class="desc">Dynamic Prog.</span></td>
+            <td>Investment Optimizer</td>
+            <td>Selects optimal non-fractional security controls under budget constraint (∑ c_i ≤ W).</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://www.cs.odu.edu/~zeil/cs361/f25-web/Public/knapsack/index.html" target="_blank">cs.odu.edu ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>SHA-256 + Merkle</strong><br/><span class="desc">FIPS 180-4 / RFC 6962</span></td>
+            <td>Tamper-Evident Ledger</td>
+            <td>Cryptographically hashes alerts and allocations with Merkle root verification.</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" target="_blank">csrc.nist.gov ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>Groq SDK / LLM</strong><br/><span class="desc">LPU Tensor Engine</span></td>
+            <td>AURA Voice / AI Co-Pilot</td>
+            <td>Sub-second natural language risk query answering and board-level risk explanations.</td>
+            <td><span class="status-badge">IMPLEMENTED</span></td>
+            <td><a href="https://console.groq.com/docs/" target="_blank">console.groq.com ↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 2: AURA CORE PIPELINE -->
+    <div class="section-card">
+      <h2>2. AURA Core Pipeline & Architecture</h2>
+      <p class="desc">The 9-stage autonomous pipeline linking raw telemetry to board-level investments:</p>
+      
+      <ul>
+        <li><strong>1. System Telemetry Ingest</strong> [<span class="code-chip">psutil + OS Sockets</span>]: Continuous streaming of CPU, RAM, disk, and listening sockets.</li>
+        <li><strong>2. Collect & Normalize</strong> [<span class="code-chip">FastAPI + Pydantic</span>]: Multi-source schema validation and timestamp normalization.</li>
+        <li><strong>3. Threat / Signal Analysis</strong> [<span class="code-chip">MITRE ATT&CK</span>]: Maps anomalous activity to adversary tactics (T1046, T1021).</li>
+        <li><strong>4. Risk Engine</strong> [<span class="code-chip">Statistical Scorer</span>]: Composite technical cyber severity scoring (0–100 scale).</li>
+        <li><strong>5. Financial Exposure</strong> [<span class="code-chip">Actuarial Loss Model</span>]: Translates CVSS risk to rupee exposure ranges (₹8L–₹15L prototype).</li>
+        <li><strong>6. What-If Simulation</strong> [<span class="code-chip">Sensitivity Analyzer</span>]: Dynamic wargame testing of open ports, threat signals, and load deltas.</li>
+        <li><strong>7. 0/1 Knapsack DP Optimization</strong> [<span class="code-chip">Dynamic Programming</span>]: Solves discrete budget allocation maximizing security value.</li>
+        <li><strong>8. AI Contextual Explanation</strong> [<span class="code-chip">Groq Cloud LPU</span>]: Natural language summaries and executive defense justification.</li>
+        <li><strong>9. Blockchain Audit Ledger</strong> [<span class="code-chip">SHA-256 + Merkle</span>]: Immutable cryptographic sealing and parent-hash linking.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3: IMPLEMENTED MODULES -->
+    <div class="section-card">
+      <h2>3. Implemented AURA Modules (12 Modules)</h2>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Module Name</th>
+            <th>Primary Technology</th>
+            <th>Functional Description</th>
+            <th>Source Code Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>01. System Monitoring</strong></td>
+            <td>psutil + OS APIs</td>
+            <td>Real-time CPU, RAM, disk throughput, and active process inspection.</td>
+            <td><span class="code-chip">Backend/main.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>02. Risk Intelligence</strong></td>
+            <td>Statistical Risk Scorer</td>
+            <td>Multi-factor composite risk scoring (0–100) based on signal density.</td>
+            <td><span class="code-chip">Ai_Engine/risk_scorer.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>03. Attack Surface Intel</strong></td>
+            <td>MITRE ATT&CK</td>
+            <td>Listening port scanner and MITRE adversary technique mapping.</td>
+            <td><span class="code-chip">Ai_Engine/threat_detector.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>04. Financial Risk Engine</strong></td>
+            <td>Actuarial Loss Model</td>
+            <td>Translates technical risk to potential exposure (₹8L–₹15L prototype).</td>
+            <td><span class="code-chip">Ai_Engine/financial_engine.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>05. What-If Engine</strong></td>
+            <td>Sensitivity Analyzer</td>
+            <td>Simulates threat vector shifts and computes risk/exposure deltas.</td>
+            <td><span class="code-chip">Backend/main.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>06. Investment Optimizer</strong></td>
+            <td>0/1 Knapsack DP</td>
+            <td>Mathematically optimal defense allocation within budget limits.</td>
+            <td><span class="code-chip">Backend/investment_optimizer.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>07. Blockchain Audit Ledger</strong></td>
+            <td>SHA-256 + Merkle</td>
+            <td>Tamper-evident cryptographic ledger with interactive tamper demo.</td>
+            <td><span class="code-chip">Backend/blockchain_ledger.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>08. AURA Voice / AI</strong></td>
+            <td>Groq Cloud SDK</td>
+            <td>Conversational security co-pilot answering risk and defense queries.</td>
+            <td><span class="code-chip">Ai_Engine/groq_provider.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>09. YOLOv8 Detection</strong></td>
+            <td>Ultralytics YOLOv8</td>
+            <td>Real-time operator presence verification & perimeter surveillance.</td>
+            <td><span class="code-chip">Backend/yolov8n.pt</span></td>
+          </tr>
+          <tr>
+            <td><strong>10. MediaPipe Gestures</strong></td>
+            <td>MediaPipe Hands</td>
+            <td>Touchless gesture navigation and emergency workstation lock.</td>
+            <td><span class="code-chip">Ai_Engine/gesture_controller.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>11. Sensitive File Scan</strong></td>
+            <td>Heuristic Scanner</td>
+            <td>Scans local filesystem for exposed API keys, tokens, and private keys.</td>
+            <td><span class="code-chip">Backend/main.py</span></td>
+          </tr>
+          <tr>
+            <td><strong>12. Quarantine Vault</strong></td>
+            <td>send2trash / Vault</td>
+            <td>Isolates suspicious/malicious files safely with restoration controls.</td>
+            <td><span class="code-chip">Backend/main.py</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 4: CODE TRACEABILITY -->
+    <div class="section-card">
+      <h2>4. Code / Source Traceability</h2>
+      <p class="desc">Concrete repository proof verifying each capability against exact project files:</p>
+
+      <ul>
+        <li><strong>0/1 Knapsack Budget Optimizer:</strong> Implemented in <span class="code-chip">Backend/investment_optimizer.py</span>. Verified via <span class="code-chip">Backend/test_knapsack.py</span> (10/10 tests pass in 0.006s).</li>
+        <li><strong>Blockchain Audit Ledger:</strong> Implemented in <span class="code-chip">Backend/blockchain_ledger.py</span>. State persisted in <span class="code-chip">Database/blockchain_ledger.json</span>.</li>
+        <li><strong>Financial Risk Engine:</strong> Implemented in <span class="code-chip">Ai_Engine/Risk_engine/financial_engine.py</span> & <span class="code-chip">Backend/services/financial_engine.py</span>.</li>
+        <li><strong>Threat & MITRE Intelligence:</strong> Implemented in <span class="code-chip">Ai_Engine/Detection/threat_detector.py</span> & <span class="code-chip">Backend/main.py</span>.</li>
+        <li><strong>System Telemetry Monitor:</strong> Implemented in <span class="code-chip">Backend/main.py</span> using psutil.</li>
+        <li><strong>YOLOv8 & MediaPipe Tracking:</strong> Implemented in <span class="code-chip">Backend/main.py</span> and <span class="code-chip">Ai_Engine/Detection/gesture_controller.py</span>.</li>
+        <li><strong>Sensitive File Security & Quarantine:</strong> Implemented in <span class="code-chip">Backend/main.py (/api/file-security/*)</span> and <span class="code-chip">Frontend/src/components/modules/FileSecurity.jsx</span>.</li>
+        <li><strong>Frontend Client & Showcase:</strong> Implemented in <span class="code-chip">Frontend/src/App.jsx</span> and <span class="code-chip">Frontend/src/components/showcase/</span>.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 5: CURRENT VS FUTURE -->
+    <div class="section-card">
+      <h2>5. Current Implementation vs. Future Roadmap</h2>
+      
+      <div class="callout callout-success">
+        <strong>✓ CURRENTLY IMPLEMENTED (Active in Build):</strong><br/>
+        All 12 technical modules listed above, 0/1 Knapsack DP algorithm, SHA-256 Merkle blockchain ledger, What-If simulator, and FastAPI/React architecture are fully operational in code.
+      </div>
+
+      <div class="callout">
+        <strong>⧖ FUTURE ROADMAP (Planned Enterprise Horizons):</strong><br/>
+        The following frameworks represent prospective research goals and are <strong>NOT</strong> claimed as currently implemented:
+        <ul>
+          <li><strong>FAIR Quantitative Risk Methodology:</strong> Factor Analysis of Information Risk Monte Carlo probabilistic loss modeling.</li>
+          <li><strong>NIST CSF 2.0 Mapping:</strong> Automated organizational tier mapping across Govern, Protect, Detect, Respond.</li>
+          <li><strong>NIST SP 800-30 Integration:</strong> Structured federal threat assessment matrices.</li>
+          <li><strong>CIS Controls v8 Mapping:</strong> Automated policy audits against CIS benchmark baselines.</li>
+          <li><strong>ISO/IEC 27001 Mapping:</strong> Annex A technical and organizational audit logs.</li>
+          <li><strong>Adaptive Bayesian AI Forecasting:</strong> Predictive threat emergence modeling on historical telemetry.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 6: CLAIM SAFETY & INTEGRITY -->
+    <div class="section-card">
+      <h2>6. Claim Safety & Evaluator Disclosures</h2>
+      
+      <div class="callout callout-danger">
+        <strong>Strict Architectural & Academic Disclosures:</strong>
+        <ul>
+          <li><strong>No Regulatory Certification Claims:</strong> AURA Sentinel does not claim accredited compliance certifications (e.g. ISO, NIST, DPDP, CERT-In) as these mandate formal third-party audits.</li>
+          <li><strong>Illustrative Prototype Outputs:</strong> Financial figures (₹8L–₹15L) and risk scores (82/100) are model-based outputs designed for evaluation, not field-measured insurance warranties.</li>
+          <li><strong>0/1 Knapsack Optimality:</strong> Produces optimal defense packages strictly <em>"among configured candidate investments under specified constraints"</em>.</li>
+          <li><strong>Tamper-Evident Ledger:</strong> Labeled as a <em>"Tamper-Evident Audit Ledger"</em>; does not claim decentralized consensus or 'tamper-proof' status.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 7: JUDGE QUICK VIEW -->
+    <div class="section-card">
+      <h2>7. Evaluator Quick View (1-Page Summary)</h2>
+      
+      <h3>WHAT AURA CURRENTLY DOES (100% IMPLEMENTED):</h3>
+      <ul>
+        <li>1. Ingests kernel system telemetry (CPU, RAM, disk, processes, open ports) via psutil.</li>
+        <li>2. Maps listening ports and threat indicators to standardized MITRE ATT&CK techniques (T1046, T1021).</li>
+        <li>3. Calculates real-time composite cyber risk scores on a calibrated 0–100 scale.</li>
+        <li>4. Translates technical CVSS risk into modeled financial exposure estimates (₹8L–₹15L prototype).</li>
+        <li>5. Simulates dynamic what-if wargame scenarios with instant risk and liability delta updates.</li>
+        <li>6. Optimizes security investment portfolios using genuine 0/1 Knapsack Dynamic Programming (∑ cost_i ≤ W).</li>
+        <li>7. Maintains a tamper-evident SHA-256 Merkle audit chain with live tamper detection verification.</li>
+        <li>8. Provides conversational risk intelligence and co-pilot guidance via Groq LPU LLM inference.</li>
+      </ul>
+
+      <h3>HOW TO VERIFY LIVE IN 60 SECONDS:</h3>
+      <ul>
+        <li><strong>Launch Prototype:</strong> Run <span class="code-chip">.\run_aura_mvp.bat</span> or visit <span class="code-chip">http://localhost:5173</span></li>
+        <li><strong>Test 0/1 Knapsack DP:</strong> Adjust budget slider (₹3L–₹15L) to observe real-time O(N·W) dynamic allocation.</li>
+        <li><strong>Run Unit Tests:</strong> Execute <span class="code-chip">python -m unittest test_knapsack.py</span> in Backend/ (10 tests pass in 0.006s).</li>
+        <li><strong>Inspect Blockchain Ledger:</strong> Toggle "Simulate Telemetry Tampering" to view cryptographic hash breaks.</li>
+        <li><strong>GitHub Repository:</strong> <a href="https://github.com/aryanbaghel756-spec/AURA-SENTINEL" target="_blank">https://github.com/aryanbaghel756-spec/AURA-SENTINEL ↗</a></li>
+      </ul>
+    </div>
+
+  </div>
+</body>
+</html>

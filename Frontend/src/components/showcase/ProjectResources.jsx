@@ -174,6 +174,48 @@ export default function ProjectResources({ onExploreAura, onLaunchPrototype }) {
 
         </div>
 
+        {/* EVALUATOR RESOURCE PACK BANNER */}
+        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#0F172A] via-[#16213A] to-[#0F172A] border border-cyan-500/30 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-xl">
+          <div className="space-y-1 text-center lg:text-left">
+            <span className="text-[10px] font-mono uppercase text-cyan-400 font-bold tracking-widest">
+              OFFICIAL EVALUATION DOSSIER
+            </span>
+            <h4 className="text-lg sm:text-xl font-bold text-white font-mono">
+              AURA Sentinel — Technology &amp; Research Resource Pack
+            </h4>
+            <p className="text-xs text-slate-300 max-w-xl">
+              Complete technical documentation connecting implemented algorithms, code traceability, verified academic references, and claim safety disclosures for SIH 2026.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+            <a
+              href="/AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.pdf"
+              download
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-md shadow-cyan-400/30 cursor-pointer"
+            >
+              <span>📥 DOWNLOAD PDF</span>
+            </a>
+
+            <a
+              href="/AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.docx"
+              download
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-white bg-[#16213A] border border-[#1F2E4D] hover:bg-slate-800 hover:border-cyan-400 transition-all cursor-pointer"
+            >
+              <span>📄 DOCX FORMAT</span>
+            </a>
+
+            <a
+              href="/AURA_SENTINEL_RESOURCE_PACK.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/40 hover:bg-cyan-900/60 transition-all cursor-pointer"
+            >
+              <span>🌐 VIEW WEB DOSSIER ↗</span>
+            </a>
+          </div>
+        </div>
+
       </div>
     </section>
   );
