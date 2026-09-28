@@ -38,13 +38,13 @@ export default function DashboardPreview({ onLaunchFullConsole }) {
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-mono font-semibold uppercase text-cyan-400 bg-cyan-500/10 border border-cyan-500/30">
             <Activity className="w-3.5 h-3.5" />
-            <span>INTERACTIVE SIMULATED CONSOLE</span>
+            <span>INTERACTIVE BLUEPRINT &amp; SIMULATION CONSOLE</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            INTERACTIVE AURA DASHBOARD PREVIEW
+            INTERACTIVE AURA 3D BLUEPRINT &amp; DASHBOARD PROTOTYPE
           </h2>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Explore the unified cyber risk intelligence dashboard architecture with realistic telemetry data
+            Explore the unified cyber risk intelligence dashboard architecture with realistic telemetry data (SIH Screening Simulation)
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function DashboardPreview({ onLaunchFullConsole }) {
             {/* Prototype Badge & Launch CTA */}
             <div className="flex items-center space-x-3">
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold">
-                *ILLUSTRATIVE PROTOTYPE OUTPUT
+                *3D BLUEPRINT &amp; SIMULATION PROTOTYPE
               </span>
 
               <button

@@ -84,6 +84,15 @@ export default function Hero({ onExploreAura, onLaunchPrototype, onOpenJudgeMode
             </p>
           </div>
 
+          {/* SIH PROTOTYPE & BLUEPRINT SCOPE NOTICE */}
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs font-mono flex items-start space-x-2.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0 animate-ping" />
+            <div>
+              <strong className="text-amber-300 uppercase">EVALUATOR SCOPE DISCLOSURE: </strong>
+              This website serves as an <strong>Interactive Architectural Blueprint &amp; Simulation Prototype</strong> built for SIH 2026 screening. It demonstrates and executes core mathematical logic (0/1 Knapsack DP, What-If wargaming, SHA-256 Merkle chain) directly in the browser. The full production engine with OS-level kernel hooks (psutil), local physical webcam tracking (YOLOv8), and local sockets operates locally on the physical workstation.
+            </div>
+          </div>
+
           {/* Primary & Secondary Call to Actions */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
@@ -145,7 +154,7 @@ export default function Hero({ onExploreAura, onLaunchPrototype, onOpenJudgeMode
             <div className="flex items-center justify-between pb-4 border-b border-[#1F2E4D] text-xs font-mono">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-slate-300 font-semibold">AURA ENGINE : ACTIVE</span>
+                <span className="text-slate-300 font-semibold">AURA 3D BLUEPRINT &amp; PROTOTYPE</span>
               </div>
               <span className="text-[11px] text-cyan-400">LATENCY 4.2ms</span>
             </div>

@@ -190,23 +190,25 @@ export default function ProjectResources({ onExploreAura, onLaunchPrototype }) {
 
           <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
             <a
-              href="/AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.pdf"
-              download
+              href="./AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.pdf"
               className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-md shadow-cyan-400/30 cursor-pointer"
             >
               <span>📥 DOWNLOAD PDF</span>
             </a>
 
             <a
-              href="/AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.docx"
-              download
+              href="./AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.docx"
+              download="AURA_SENTINEL_TECHNOLOGY_RESEARCH_RESOURCE_PACK.docx"
               className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-white bg-[#16213A] border border-[#1F2E4D] hover:bg-slate-800 hover:border-cyan-400 transition-all cursor-pointer"
             >
               <span>📄 DOCX FORMAT</span>
             </a>
 
             <a
-              href="/AURA_SENTINEL_RESOURCE_PACK.html"
+              href="./AURA_SENTINEL_RESOURCE_PACK.html"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/40 hover:bg-cyan-900/60 transition-all cursor-pointer"

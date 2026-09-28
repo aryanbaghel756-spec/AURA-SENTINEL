@@ -153,7 +153,7 @@ export default function Footer({ onOpenJudgeMode, onLaunchPrototype }) {
             Academic Prototype Scope &amp; Legal Disclaimers
           </div>
           <p>
-            <strong>Prototype Status:</strong> AURA Sentinel is an academic research prototype engineered for the Smart India Hackathon 2026. All displayed financial loss estimates (e.g. ₹8L – ₹15L) and scenario deltas are model-based outputs generated for demonstration and architectural evaluation; they do not represent measured real-world loss claims or actuarial warranties.
+            <strong>Prototype Status:</strong> AURA Sentinel is an academic research prototype engineered for the Smart India Hackathon 2026. This cloud showcase acts as an <strong>Interactive Architectural Blueprint &amp; Simulation Prototype</strong> for screening evaluation. The full production engine with OS-level hardware/kernel hooks (psutil), local physical webcam tracking (YOLOv8), and local sockets operates on the physical local workstation. All displayed financial loss estimates (e.g. ₹8L – ₹15L) and scenario deltas are model-based outputs generated for demonstration and architectural evaluation; they do not represent measured real-world loss claims or actuarial warranties.
           </p>
           <p>
             <strong>Algorithmic Optimality:</strong> The 0/1 Knapsack Budget Optimizer delivers provable mathematical optimality strictly among configured candidate defense controls under user-specified discrete budget constraints. It does not claim enterprise-wide guaranteed global optimality.
